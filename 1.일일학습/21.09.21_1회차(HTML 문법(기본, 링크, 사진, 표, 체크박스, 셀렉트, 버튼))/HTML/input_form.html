@@ -1,0 +1,48 @@
+<!doctype html>
+<html>
+<head>
+	<meta charset = "UTF-8">
+	<title>input_form입니다.</title>
+</head>
+<body>
+	<h2>회원가입 양식</h2><hr/>
+	<!-- input태그는 입력창을 만드는 태그입니다. type속성으로 여러가지를 지정할수 있습니다. -->
+	# 아이디: <input type="text" /> <br />
+	# 비밀번호: <input type="password" /> <br />
+		<!-- input태그의 속성인 type의 value를 text로 넣으면 입력되는 양식이 모니터로 직접적으로 표시가되고,
+			password를 넣으면 간접적으로 표시된다.(*형태) 
+		참고로 br이나 input meta처럼 열고나서 닫는 태그가 없는 단일태그는 여는태그의 제일마지막에 종료의의미로 슬러쉬를
+		넣어준다. 하지만 안넣어도 실행 잘된다. 정식문법은 넣는것이니 넣도록 하자-->
+
+	<!-- radio 타입은 동그라미 체크버튼을 만듬. &bsp;는 스페이스바 명령임 &nbsp는 스페이스바 명령임 공백명령 마지막에
+		입력되는 공백은 공백으로 안치고 문자와 문자사이만 공백으로치기때문에 마지막에 공백을넣으려면 nbsp를 넣어야함
+	name을 똑같은걸로 맞춰줘야 같은 그룹으로 보고 name의 벨류가 같은녀석들 중에서 하나를 선택하게함-->
+	# 전공: <input type = "radio" name = "major1" /> 경영학 			&nbsp;                 
+	<input type = "radio" name = "major1" /> 화학 					&nbsp;
+	<input type = "radio" name = "major1" /> 한국미술 &nbsp;
+	<input type = "radio" name = "major1" /> 컴퓨터공학 		&nbsp; <br/>
+	
+	<!-- type의 value를 checkbox로 하면 다중선택 가능한 네모체크버튼을 만듬)
+		이때 이렇게 네모인 박스모양을 바꾸고 이쁘게하는게 css라네 
+		type을 button: 일반적인 버튼
+			reset: 모든 체크박스나 입력값이 모두 사라짐-->
+	# 취미:
+	<input type="checkbox" name = "hobby" />    독서&nbsp;
+	<input type="checkbox" name = "hobby" />            수면&nbsp;
+	<input type="checkbox" name = "hobby" /> 축구&nbsp;
+	<input type="checkbox" name = "hobby" /> 게임&nbsp;
+
+	# 지역: 
+	<select>
+		<option>서울</option>
+		<option>경기</option>
+		<option>세종</option>
+		<option>제주</option>
+	</select> <br />
+
+	<input type = "button" value = "확인" /> &nbsp;
+	<input type = "reset" value = "초기화" /> &nbsp;
+		<!-- 확인 및 초기화가 현재는 생기기만 한거고 다른걸 javascript나 jsp에서 추가조치해줘야함 --> 
+
+</body>
+</html>
