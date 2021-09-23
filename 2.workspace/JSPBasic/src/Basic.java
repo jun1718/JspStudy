@@ -1,19 +1,16 @@
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
+
 public class Basic {
 	
 	public int i;
 	public String str = "홍길동";
 
 	public int add(int n1, int n2){
-		
-		for(int dan=2;dan<=9;dan++){
-			if(dan % 2 == 0) continue;
-			for(int hang=1;hang<=9;hang++){
-				System.out.println(dan + " x " + hang + " = " + dan*hang
-						+ "<br />");
-			}
-		}
-
 		return n1+n2;
 		
 	}
@@ -21,16 +18,19 @@ public class Basic {
 //	Math.random(); //오류
 	
 	public static void main(String[] args) {
-		Math.random();
+	
+	
+		int[] arr = new int[4];
+		
+		System.out.println(arr.length);
+		System.out.println(Arrays.toString(arr));
+		Arrays.sort(arr);
+		List<String> strings = new ArrayList<>();
+		Collections.sort(strings);
 		
 		
-		for(int dan=2;dan<=9;dan++){
-			if(dan % 2 == 0) continue;
-			for(int hang=1;hang<=9;hang++){
-				System.out.println(dan + " x " + hang + " = " + dan*hang
-						+ "<br />");
-			}
-		}
 	}
 
+	
+	
 }

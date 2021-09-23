@@ -1923,3 +1923,928 @@ a. trimDirectiveWhitespaces - 디렉티브나 스크립트릿 코드로 인해�
 
 </body>
 </html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+21.09.23_3회차
+=======================================================================================================
+*jsp태그복습, 리스트복습(로또,역할파티), 지시자(include,trimDW)
+=======================================================================================================
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+######################################################################################################
+예제10) declaration, scriptlet, directive, expression 복습
+
+
+jsp파일명: tag_quiz00
+
+
+오늘의 운세!				//가장큰 제목
+
+페이지 누적요청수: 9, 페이지 개별 요청수: 1	//페이지 누적요청수는 올라가고 페이지 개별요청수는 올라가지 않는다.
+
+오늘의 행운의 숫자와 행운의 색깔			//두번째로 큰 제목
+					//문단으로 아래 두줄감싸기
+행운의 숫자: 2				//2 정수부는 헤드라이트 골드체				
+행운의 색깔: 파랑				//기울임체(이텔리체)
+
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+    
+<%! 
+	//Declaration
+	//jsp파일에서 사용할 멤버변수, 메서드를 선언할때 사용
+	
+	public int total;
+	public int randomNumber(){
+		//랜덤정수 1~10까지를 발생시켜서 리턴
+		return 0;
+	}
+	
+	public String randomColor(){
+		
+		/*
+		0.0이상 1.0미만의 실수 난수를 발생시켜서 난수값이 0.66이상이면 "빨강"을 0.33 이상이면
+		"노랑", 그 이외에는 "파랑"을 리턴
+		*/
+		return null;
+	}
+	
+%>
+    
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+
+
+</body>
+</html>
+######################################################################################################
+
+
+
+답:
+
+
+
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<%@ page import = "java.util.Random" %>
+    
+<%! 
+	//Declaration
+	//jsp파일에서 사용할 멤버변수, 메서드를 선언할때 사용
+	
+	public int total;
+	public String color;
+	public int num;
+	public Random r = new Random();
+	
+	public int randomNumber(){
+		//랜덤정수 1~10까지를 발생시켜서 리턴
+		num = r.nextInt(10)+1;
+		return num;
+	}
+	
+	
+	public String randomColor(){		
+		/*
+		0.0이상 1.0미만의 실수 난수를 발생시켜서 난수값이 0.66이상이면 "빨강"을 0.33 이상이면
+		"노랑", 그 이외에는 "파랑"을 리턴
+		*/
+		double num = r.nextDouble();
+		
+		if(num>=0.66){
+			color = "빨강"; //여기 리턴을 둘수도 있음
+		} else if(num>=0.33){
+			color = "노랑";
+		} else{
+			color = "파랑";
+		}
+		
+		return color;
+	}
+	
+%>
+
+<%
+	total++;
+	int each=0;
+	each++;
+	
+	num = randomNumber();
+	color = randomColor();
+%>
+    
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+
+<h1>오늘의 운세!</h1>
+
+페이지 누적요청수: <%= total%>, 페이지 개별 요청수: <%= each%> 
+
+<h2>오늘의 행운의 숫자와 행운의 색깔</h2>
+
+<p>
+행운의 숫자: <strong><%= num%></strong> <br />
+행운의 색깔: <em><%= color%></em> 
+</p>
+
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+######################################################################################################
+예제11) declaration, scriptlet, directive, expression 복습
+
+jsp파일명: tag_quiz01
+
+1)아래처럼 10번째면 나오게하고 10번째가 아니면 아무문구 안뜨게 하라
+
+페이지 누적 요청수 : 30
+매 10번째 방문자에게는 기프티콘을 드립니다.
+당첨되셨습니다!!
+		//구분선
+랜덤 구구단(7단)	//가장 큰제목
+
+이번에 나온 구구단은 7단입니다. //문단구분
+
+7 x 1 = 7
+7 x 2 = 14
+7 x 3 = 21
+7 x 4 = 28
+7 x 5 = 35
+7 x 6 = 42
+7 x 7 = 49
+7 x 8 = 56
+7 x 9 = 63
+
+
+2)그런다음 자바의 코드가 페이지소스보기에 안보이는지 확인해라
+	-확인해보니 안보이긴하는데 doctype위에 빈칸들이있네.. 즉 자바의 발자취가 남았다는 뜻
+	-이걸없애라
+
+
+
+######################################################################################################
+
+
+
+답:
+
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<%@ page import = "java.util.Random" trimDirectiveWhitesapces = "true"%>
+    
+<%!
+private int total;
+private Random r = new Random();
+
+public int randomDan(){
+	return r.nextInt(8)+2;
+}
+
+public boolean checkTotal(){
+	if(total%10==0){
+		return true;
+	}
+	return false;
+}
+%>
+<% 
+total++;
+int num = randomDan();
+%>
+    
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+
+페이지 누적 요청수 : <%= total %> <br />
+매 <strog>10</strog>번째 방문자에게는 기프티콘을 드립니다. <br />
+<% 
+if(checkTotal()) out.print("당첨되셨습니다!!");	
+%> 
+<hr />
+
+<h1>랜덤 구구단(<%=num%>단) </h1>
+
+<p>이번에 나온 구구단은 <%=num%>단입니다.</p>
+
+<%for(int hang=1;hang<10;hang++){
+	int result = num*hang;
+%>
+
+<%=num%> x <%=hang%> = <%=result%> <br />
+<%} %>
+
+
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+######################################################################################################
+예제12) 리스트를 통한 랜덤로또 만들기
+
+
+jsp파일명: tag_quiz02
+
+
+1)리스트를 이용하면 랜덤로토만들기가 얼마나편한지 느껴보시오
+	-중복검사코드를 따로 안만들어도됨
+	-while문에 굳이 i라는 begin을 만들고 end설정을 하고 스텝으로 더할필요가없음
+
+이때 로또번호는 0.7초간격으로 하나식 출력되게하라.(당연히 번호는 정렬되어 나와야한다.)
+	
+
+
+
+로또번호 생성 결과		//가장큰제목
+이번주 로또는 이 번호다!!
+12 13 14 28 39 41 	//로또번호는 0.7초당 하나식 나오도록(최초의 것은 바로나오고)
+	//여기나오는 공백은 " "가 아닌 html상의 공백문자를 사용하라
+
+######################################################################################################
+
+
+
+답:
+
+
+
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+    
+<%@ page import = "java.util.Random" import = "java.util.*" %>
+
+<%!
+private Random r = new Random();
+List<Integer> lotto = new ArrayList<>();
+%>
+
+<%
+	lotto.clear();
+	while (lotto.size() < 6) {
+		int num = r.nextInt(45) + 1;
+		if (!lotto.contains(num)) {
+			lotto.add(num);
+		}
+	}
+	
+	
+	Collections.sort(lotto);
+	//String lo = lotto.toString();
+%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+
+<h1>로또번호 생성 결과</h1>
+
+이번주 로또는 이 번호다!!<br />
+<%-- lo --%>
+<% 
+for(int j=0;j<lotto.size();j++){
+	out.print(lotto.get(j)+"&nbsp;");
+	Thread.sleep(700);//cpu를 잠시 멈추는 메서드
+	out.flush(); //브라우저의 출력버퍼를 비우는 메서드
+}
+%>
+
+<br />
+
+
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+######################################################################################################
+개념정리_지시자(directive) 태그의 종류(page,include,taglib)와 page 및 include 지시자태그의 속성 
+
+
+
+* 지시자(directive)
+- JSP페이지의 전체적인 속성을 지정할 때 사용합니다.
+1. page: JSP페이지에 대한 정보를 지정한다. JSP가 생성하는 문서의 타입, 출력 버퍼의 크기, 
+	에러 페이지 등 페이지에서 필요로 하는 정보를 설정합니다.
+
+- 페이지 디렉티브에 선언 될 수 있는 속성들
+a. language - 언어를 지정합니다. java만 지정할 수 있습니다.
+a. import - 패키지를 import할 때 사용합니다.
+a. errorPage - 설정 된 페이지에서 에러가 발생했을 시에 미리 만들어 둔 에러 페이지를 호출합니다.
+a. contentType - text/html이라고 쓰면 결과가 HTML문서로 만들어집니다.
+a. pageEncoding - 출력 문자 인코딩입니다. 기본은 ISO-8859-1이며 한글을 사용하려면 utf-8로 지정합니다.
+a. trimDirectiveWhitespaces - 디렉티브나 스크립트릿 코드로 인해서 만들어진 공백 문자를 제거하는 기능.
+
+1. include: JSP 페이지의 특정 영역에 다른 문서를 포함시킵니다.(jspf, jsp 모두 가능)
+a. file -포함해야할 문서 jspf의 위치를 상대 또는 절대경로로 value를 넣어주는 속성이다.
+
+1. taglib: JSP 페이지에서 사용할 태그 라이브러리를 지정합니다.
+
+
+- JSP 아키텍쳐
+: .jsp파일을 실행(요청)하면 웹 서버에서 우선 jsp파일을 java코드로 변환합니다. 그 이후 그 파일을 컴파일하고 html로 응답합니다.      
+ex) helloworld.jsp -> helloworld_jsp.java(서버에서 servlet화) -> helloworld_jsp.class(서블릿 클래스 컴파일)
+######################################################################################################
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+######################################################################################################
+예제13) directive의 include(jspf)
+
+
+
+
+
+1)아래 요구사항을 충족하라(include할때 상대경로로 한번하고 절대경로로한번해라)
+
+jspf파일이름: directive02_header directive02_footer
+		-header에선 출력내용을 넣지말고 오로지 자바코드로 visit을 만들고 방문자가 올때마다 더하는 코드를 만들어라
+jspf를 포용할 jsp 파일이름: directive02_main
+
+방문자수 : 8	//방문자수 : 까지 jsp, 8은 jspf에서 선언한 변수를 불러오기
+안녕하세요~~~ welcome to my website!!!	//jsp
+						//구분선	//jspf
+COPYRIGHT BY C.G.J / since 2019.04.18 ~		//jspf
+						//구분선 //jspf
+
+2)directive02_header의 내용을 방문자수 : 8 을 출력하는걸로 변경하고 그걸 lotto나 다른 jsp에도 include해서
+	잘나오는가 확인하라
+	-위에는 header를 저렇게한게 변수를 만들고 변수를 끌어올수 있다는것을 공부하기위한 목적이고 지금은 범용성 실습의 목적임
+
+
+
+#jspf: jsp와 다르게 항상 머리 또는 꼬리에 조각처럼 들어가야할 녀석이라고해서 fragment(조각)를 붙여서 jsp와 구분한다. jspf
+	-가시적으로 빠르게 아 이것은 머리와 꼬리에 항상 들어가는 include해야할 파일이구나 라는것을 알기위한것
+		-jspf만 include되는것이 아닌 jsp도 인클루드 가능함! 가시성을 위해 jspf
+
+######################################################################################################
+
+
+
+답:
+
+
+
+
+1)아래 요구사항을 충족하라(include할때 상대경로로 한번하고 절대경로로한번해라)
+
+
+//directive02_header
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+    
+<%! int visit; %>
+<% visit++; %>
+
+
+//directive02_footer
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+
+<hr/>
+COPYRIGHT BY C.G.J / since 2019.04.18 ~
+<hr/>
+
+
+//directive02_main
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+
+<%@ include file="directive02_header.jspf" %>
+<h2>방문자수 : <%= visit %></h2>
+
+<p>
+안녕하세요~~~ welcome to my website!!!
+</p>
+
+<%@ include file="directive02_footer.jspf" %>
+</body>
+</html>
+
+
+
+2)directive02_header의 내용을 방문자수 : 8 을 출력하는걸로 변경하고 그걸 lotto나 다른 jsp에도 include해서
+	잘나오는가 확인하라
+
+//directive02_header 내용 변경
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+ 
+<%! int visit; %>
+<% visit++; %>
+<h2>방문자수 : <%= visit %></h2>
+
+
+//expression.jsp
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+
+<%@ include file = "directive02_header.jspf" %>  
+
+  
+<%!
+	public String name = "홍길동";
+%>
+<%
+	String address = "서울시"; 
+%>
+    
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+
+<!-- 표현식은 out.print()를 대체함
+	out.print하면 나중에 쌍따옴표에다가 + 등을 적어야하고 번거롭다. -->
+
+이름: <%= name %> <br /> <!-- out.print("이름"+name+"<br />"); -->
+주소: <%= address %> <br />
+
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+######################################################################################################
+예제14) 게임파티로직 작성을통한 리스트실습
+
+
+jsp파일명: tag_quiz03
+
+당신의 역할
+당신에게 부여된 역할은 사냥꾼입니다.
+현재 파티에 당신과 같은 역할을 가진 플레이어는 1명입니다.	//이거 직업군 인원 셀때 배열쓰지말고 다른걸로 해라
+
+현재 파티 구성
+[도적, 전사, 사냥꾼](3명 참가중)	
+
+
+
+0)직업: 도적, 사냥꾼, 전사, 사제 
+
+1)브라우저에서 서버에 요청할때마다(f5할때마다) 사용자에게 임의의 역할(직업)을 부여하고 현재 파티에서 해당사용자를 포함하여 몇명이 
+  임의의 역할을 가지고 있는지 출력하시오.
+
+2)현재 파티구성에서 먼저 들어온 사용자순으로 역할을 나열하고 총 몇명 참가중인지 나타내시오
+
+3)참가중인 파티는 10명까지 가능하며 10명이 넘으면 다시 임의의 역할을 주고 1명부터 시작함
+
+#헤드라이트는 strong 태그, b태그 모두 가능한데 strong을 많이 쓰는 추세라고 한다.
+#리스트는 리스트변수 이름만 출력에 넣어도 주소가나오는게아닌 toString()의 반환값으로 나온다는것을 반드시 인지할것
+#<%= party.size() %> 가 된다는것 명심 즉 반환값으로 기본값만 나오면됨 그럼 그걸 문자열로 만들어서 브라우저에 출력함
+######################################################################################################
+
+
+
+
+
+
+
+
+
+
+답<직업군 플레이어 수 배열안쓰고 푼것>:
+
+
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<%@ page import = "java.util.List" import = "java.util.ArrayList" %>
+<%!
+List<String> party = new ArrayList<>();
+%>
+ 
+ 
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+
+
+<h1>당신의 역할</h1>
+
+<%
+String[] jobs = {"도적", "사냥꾼", "전사", "사제", "마법사"};
+int r = (int)(Math.random()*jobs.length);
+if(party.size() == 10) party.clear();
+party.add(jobs[r]);
+
+int count = 0;
+for(int i=0;i<party.size();i++){
+	if(party.get(i)==jobs[r]) count++;
+}
+
+
+%>
+
+당신에게 부여된 역할은 <strong><%= party.get(party.size()-1) %></strong>입니다.<br />
+현재 파티에 당신과 같은 역할을 가진 플레이어는 <%= count %>명입니다.
+<hr />
+
+현재 파티 구성<br />
+<%= party %>(<%= party.size() %>명 참가중)
+
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+답<직업군 플레이어 수 배열쓴거>:
+
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+
+<%@ page import = "java.util.List" import = "java.util.ArrayList" 
+	import = "java.util.Collections" import = "java.util.Random"%>
+    
+<%!
+private String[] jobs = {"도적", "사냥꾼", "사제", "전사"};
+private List<String> party = new ArrayList<>();
+private int[] jobNums = new int[4]; //이렇게 직업수를 정하는법도있고
+						//contains로 true일때마다 count를 1식늘리는방법도있다.
+private int num;
+
+private Random r = new Random();
+
+public void setParty(){
+	num = r.nextInt(jobs.length);
+	party.add(jobs[num]); 
+	
+	jobNums[num]++;
+}
+
+public void checkParty(){
+	if(party.size()==10){
+		party.clear();
+		for(int i=0;i<jobNums.length;i++){
+			jobNums[i] = 0;
+		}
+	}
+}
+%>   
+    
+<%
+checkParty();
+setParty();
+String job = party.get(party.size()-1);
+int jobNum = jobNums[num];
+
+String partyJob = party.toString();
+int partyTot = party.size();
+%>
+
+    
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+
+<h1>당신의 역할</h1>
+
+당신에게 부여된 역할은 <%= job %>입니다. <br />
+현재 파티에 당신과 같은 역할을 가진 플레이어는 <%= jobNum %>명입니다. <br /> <br />
+
+
+현재 파티 구성 <br />
+<%= partyJob %>(<%= partyTot %>명 참가중) <br />
+
+</body>
+</html>
+
+
+
+
+
+
+
+
+

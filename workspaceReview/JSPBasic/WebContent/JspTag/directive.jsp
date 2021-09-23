@@ -23,6 +23,7 @@ String d =sdf.format(date);
 <title>Insert title here</title>
 </head>
 <body>
+<%@ include file = "directive02_header.jspf" %>
 
 오늘은 <%= d %> 입니다2. <br />
 
