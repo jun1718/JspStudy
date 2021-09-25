@@ -2848,3 +2848,2316 @@ int partyTot = party.size();
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+21.09.24_4회차
+=======================================================================================================
+*파라미터 입력(url, 입력태그&form), 파라미터 불러오기(request.getParameter)
+=======================================================================================================
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+######################################################################################################
+개념정리_내장객체 개념 및 종류, request 객체의 요청파라미터
+
+* JSP 내장 객체
+- 개발자가 JSP 파일 내에 객체를 생성하지 않고 바로 사용할 수 있는 객체가 내장 객체입니다.
+- JSP에서 제공되는 내장객체는 JSP 컨테이너에 의해 서블릿으로 변환될 때 자동으로 객체가 생성됩니다.
+
+
+* JSP 내장 객체의 종류
+1. request	javax.servlet.http.HttpServletRequest
+2. response	javax.servlet.http.HttpServletResponse
+3. out	javax.servlet.jsp.JspWriter
+4. session	javax.servlet.http.HttpSession
+5. application	javax.servlet.ServletContext
+1. pageContext	javax.servlet.jsp.PageContext
+1. page	javax.servlet.jsp.HttpJspPage
+1. config	javax.servlet.ServletConfig
+1. exception	java.lang.Throwable
+
+
+* request 객체의 이해
+- 웹 브라우저를 통해 서버에 어떤 정보를 요청하는 것을 request라고 합니다.
+- 이러한 요청 정보가 담기고 관리되는 곳이 request객체입니다.
+
+- request 객체가 제공하는 기능.
+1. 클라이언트(웹 브라우저)와 관련된 정보 읽기 기능.
+2. 서버와 관련된 정보 읽기 기능.
+3. 클라이언트가 전송한 요청 파라미터 읽기 기능.
+4. 클라이언트가 전송한 쿠키 읽기 기능.
+
+
+<%--
+*요청 파라미터(request parameters)
+-클라이언트 측에서 서버로 데이터를 요청할때 전달되는 값들을 담은 변수를 요청 파라미터라고 부름
+-요청 파라미터는 URL 주소 뒤에 ?를 붙인이후 [파라미터변수명=값]의 형식을 통해 서버로 데이터를
+전달합니다.
+-요청파라미터를 여러개 전달할때는 &기호를 통해 나열합니다.
+ --%>    
+
+
+
+
+- request 객체 관련 주요 메서드
+1. getContextPath():String - 웹 어플리케이션의 컨텍스트 루트의 경로를 얻습니다.
+1. getMethod():String - 웹 브라우저가 정보를 전송할 때 사용한 요청 방식을 구합니다.(get, post)
+1. getServerName():String - 연결할 때 사용한 서버 이름을 구합니다.
+1. getServerPort():int - 서버가 실행중인 포트 번호를 구합니다.
+1. getRequestURL():String - 요청 URL을 얻습니다.
+1. getRequestURI():String - 요청 URI를 얻습니다.
+1. getRemoteAddr():String - 웹 서버에 연결한 클라이언트의 IP주소를 구합니다.
+1. getProtocol():String - 해당 프로토콜을 얻습니다.
+1. getParameter(String name):String
+- 이름이 name인 파라미터 값을 구합니다. 존재하지 않을 경우 null을 반환합니다.
+1. getParameterValues(String name):String[]
+- 이름이 name인 모든 파라미터 값들을 배열로 구합니다. 존재하지 않을 경우 null을 반환합니다.
+1. getParameterNames():java.util.Enumeration
+- 웹 브라우저 전송한 파라미터의 이름 목록을 구합니다.
+1. getParameterMap():java.util.Map
+- 웹 브라우저가 전송한 파라미터의 맵을 구합니다. 맵은 <파라미터 이름, 파라미터 값> 쌍으로 구성됩니다.
+* JSP&Servlet API문서
+- http://docs.oracle.com/javaee/7/api/
+
+######################################################################################################
+
+
+
+
+
+
+
+
+######################################################################################################
+예제15) request내장객체를 이용하여 파라미터 읽기
+
+
+
+1)아래의 것들을 출력하라
+folder추가: JspObj
+jsp추가: req_info.jsp
+
+reqUrl
+reqUri
+protocol
+conPath
+serverPort
+serverName
+userIP
+
+
+# 요청 URL: http://localhost:8181/JSPBasic/JspObj/req_info.jsp
+# 요청 URI: /JSPBasic/JspObj/req_info.jsp //uri는 context root부터 해당 파일까지의 경로이다
+# 요청 protocol: HTTP/1.1
+# 요청 context path: /JSPBasic
+# 요청 server port: 8181
+# 요청 server name: 8181
+# 요청 user ip: 0:0:0:0:0:0:0:1	//우리꺼라서 이렇게 찍히는거 다른 클라이언트가오면 다르게찍힘
+
+
+2)url로 파라미터전송하고 파라미터 읽기
+req_param.jsp만들기
+
+요청 파라미터 읽기 연습!!!
+-아침밥: null
+-점심밥: null 
+-저녁밥: null
+
+<parameter 입력 후 출력>
+
+요청 파라미터 읽기 연습!!!
+-아침밥: 샐러드
+-점심밥: 샐러드계란
+-저녁밥: 소고기
+
+
+
+<%--
+*요청 파라미터(request parameters)
+-클라이언트 측에서 서버로 데이터를 요청할때 전달되는 값들을 담은 변수를 요청 파라미터라고 부름
+-요청 파라미터는 URL 주소 뒤에 ?를 붙인이후 [파라미터변수명=값]의 형식을 통해 서버로 데이터를
+전달합니다.
+-요청파라미터를 여러개 전달할때는 &기호를 통해 나열합니다.
+ --%>    
+
+
+
+3)url로 파라미터전송하고 파라미터 읽기
+	-bmi지수는 세째짜리까지 나타내라
+req_bmi.jsp
+
+
+체질량 지수(BMI) 계산
+- 신장: 185.3
+- 체중: 75.3
+BMI 지수 : 21.933
+당신은 정상체중입니다.
+
+
+<%--
+	bmi지수 계산 공식 [체중(kg) / 신장(m) * 신장(m)]
+	* bmi지수가 23을 초과한다면 "당신은 과체중입니다."를 출력,
+	18.5 미만이라면 "당신은 저체중입니다."를 출력,
+	나머지는 "당신은 정상체중입니다."를 출력하세요.
+	
+	* 문자열 내부에 들어있는 데이터를 기본데이터 타입으로 변환하는 방법
+	 포장 클래스에 들어있는 parse+기본타입이름()메서드 활용.
+	 ex) String -> int
+		Integer.parseInt(문자열);
+	 	 String -> double
+	 	Double.parseDouble(문자열);
+ --%>
+
+
+#소수점 컨트롤을 하고싶다면 round를 쓸것
+	-round는 반드시 정수.0으로 만든다.
+	-그러면 구하고싶은 소수점자리가 3자리라면 1000을 곱하여 해당 수를 보존한뒤 다시 1000을 나누면된다.
+
+######################################################################################################
+
+
+
+답:
+
+
+
+
+1)아래의 것들을 출력하라
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+    
+<%
+StringBuffer reqUrl = request.getRequestURL();
+String reqUri = request.getRequestURI();
+String protocol = request.getProtocol();
+String conPath = request.getContextPath(); //root폴더
+int serverPort = request.getServerPort();
+String userIP = request.getRemoteAddr();
+%>
+    
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+
+<p>
+# 요청 URL: <%= reqUrl %> <br />
+# 요청 URI: <%= reqUri %> <br />
+# 요청 protocol: <%= protocol %> <br />
+# 요청 context path: <%= conPath %> <br />
+# 요청 server port: <%= serverPort %> <br />
+# 요청 user ip: <%= userIP %> <br />
+
+</p>
+
+</body>
+</html>
+
+
+
+2)요청파라미터 읽기연습
+
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+    
+<%--
+*요청 파라미터(request parameters)
+-클라이언트 측에서 서버로 데이터를 요청할때 전달되는 값들을 담은 변수를 요청 파라미터라고 부름
+-요청 파라미터는 URL 주소 뒤에 ?를 붙인이후 [파라미터변수명=값]의 형식을 통해 서버로 데이터를
+전달합니다.
+-요청파라미터를 여러개 전달할때는 &기호를 통해 나열합니다.
+ --%>    
+
+<%
+//클라이언트에서 전송된 요청파라미터의 값을 읽는 방법
+//내장객체 request의 메서드 getParameter(파라미터의 이름)
+String br = request.getParameter("bf");
+String lunch = request.getParameter("lunch");
+String dinner = request.getParameter("dinner");
+%>
+    
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+
+<h2>요청 파라미터 읽기 연습!!!</h2>
+
+<p>
+-아침밥: <%= br %> <br/>
+-점심밥: <%= lunch %><br/>
+-저녁밥: <%= dinner %><br/>
+</p>
+
+</body>
+</html>
+
+
+
+3)url로 파라미터전송하고 파라미터 읽기
+
+
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+    
+<%
+
+String cm = request.getParameter("cm");
+String kg = request.getParameter("kg");
+%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+
+<h2>체질량 지수(BMI) 계산 </h2>
+<hr/>
+
+<p>
+- 신장: <%= cm %><br/>
+- 체중: <%= kg %><br/>
+</p>
+
+<p>
+<%
+double m = Double.valueOf(cm)*0.01;
+double bmi = Double.valueOf(kg) / (m * m);
+bmi = Math.round(bmi*1000)*0.001;
+//bmi = Math.round(bmi*1000)/1000.0;
+%>
+BMI 지수 : <%= bmi %> <br/>
+
+<%
+if(bmi > 23) out.print("당신은 과체중입니다.<br/>");
+else if (bmi < 18.5) out.print("당신은 저체중입니다.<br/>");
+else out.print("당신은 정상체중입니다.<br/>");
+%> 
+
+할루 출력종료~
+</p>
+
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+######################################################################################################
+예제16) url로 파라미터 전송이아닌 입력버퍼를 통해 전송하기
+
+1)아래 요구사항이 실현되도록하라
+req_user_form.jsp //입력페이지
+req_user_info.jsp //입력받은 데이터를 처리하는 페이지
+
+-이름: 		//입력버퍼
+
+-ID: 		//입력버퍼
+
+-PW: 		//입력버퍼
+			//파라미터값으로는 이름문자열이랑 id문자열 pw로 전송
+			//파라미터변수로는 user_name, user_id, user_pw
+
+-성별:  남성     여성	//동그라미 하나만 누를수있는 버튼후 남성 + 뛰어쓰기하나+명령어를통한 뛰어쓰기2개 한후 동그라미하나만하고 여성
+			//파라미터값으로는 남자 여자중 선택한 단하나로 전송 
+			//파라미터변수로는 gender
+-취미: 축구   독서   수면   음악감상 //파라미터
+			//파라미터값으로는 각 선택에 따라서 soccer reading rest music으로 전송 이때 전송가능한 값은 다중
+			//파라미터변수로는 hobby
+-지역: 서울		//셀렉트로 4개지역설정해서 클릭하여 선택하게만드삼
+			//파라미터값은 서울, 울산 부산 경기
+			//파리미터 변수는 region	
+확인		//이 버튼을 누르면 위의 입력된 내용들이 현재 페이지를 거쳐서 req_user_infopage에 파라미터로 전송
+
+
+form태그로 전달된 데이터 읽기 학습
+#이름 : 김철수
+#ID : 아메리카
+#PW : asdsa
+#성별 : 남자
+#취미 : [soccer, rest, music]
+#지역 : 부산
+
+
+#체크박스 동그라미박스 등에서는 태그종료후 일반글로 축구 독서 수면 남성여성 쓴게 value로 자동넘어가지않는다. 태그가 끝나고 입력된 문자열을
+ 당긴것 뿐이니까 아무 연관성이 없다고 판단함
+하지만 select는 태그안에 속성인 option으로 값이 들어가있기때문에 value로 인정해준다
+	-이것또한 예전에는 value로 다시 다 쳐줬지만 지금은 html5에서는 option에 있는걸 자동으로 가져간다.
+
+######################################################################################################
+
+
+
+답:
+
+
+
+
+
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+<%--
+	* 사용자의 입력값을 서버로 전송하는 방법.
+	1. 사용자의 입력데이터를 서버로 전송하려면 HTML의 form태그를 사용합니다.
+	2. form태그의 action속성에 데이터를 받을 페이지의 URL주소를 적습니다.
+	3. input태그의 name속성으로 요청파라미터의 이름을 지정할 수 있습니다.
+	4. 입력창이나 버튼체크에 의해 작성된 값이 요청파라미터의 값으로 처리됩니다.
+	5. submit버튼을 사용하여 서버로 데이터를 전송합니다.
+ --%>
+ 
+<!--   <form action="http://localhost:8181/JSPBasic/JspObj/req_user_info.jsp">  --> <!--  위의 2번내용임-->
+ <form action="req_user_info.jsp"> <!-- 상대경로를 뜻함, 엑션은
+ 현재 입력페이지에서 받은 파라미터를 어디페이지로 줄것이냐? 여기서 다해결할수도있지만
+ 함수로 기능나누듯이 페이지별로 기능을 나누는 거인듯 -->
+ 	<p>
+ 	-이름: <input type = "text" name = "user_name" size="10px" /> <br/>
+ 	-ID: <input type = "text" name = "user_id" size="10px" /> <br/>
+ 	-PW: <input type = "password" name = "user_pw" size="10px" /> <br/>
+ 	-성별: <input type = "radio" name = "gender" value = "남자" /> 남성 &nbsp;&nbsp;
+ 		  <input type = "radio" name = "gender" value = "여자" /> 여성  <br/>
+ 	-취미: 
+ 	<input type="checkbox" name="hobby" value="soccer"/>축구 &nbsp;
+ 	<input type="checkbox" name="hobby" value="reading"/>독서 &nbsp;
+ 	<input type="checkbox" name="hobby" value="rest"/>수면 &nbsp;
+ 	<input type="checkbox" name="hobby" value="music"/>음악감상 <br/>
+ 	
+ 	-지역:
+ 	<select name = "region">
+ 		<option>서울</option>
+ 		<option>경기</option>
+ 		<option>부산</option>
+ 		<option>제주</option> 	
+ 	</select> <br/>
+ 	
+ 	
+ 	<!-- 서버로 데이터를 전송하는 버튼의 타입이름: submit -->
+ 	<input type = "submit" value = "확인" />
+ 	</p>
+ 
+ </form>
+</body>
+</html>
+
+
+
+
+
+
+
+
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8" import = "java.util.Arrays"%>
+    
+<%
+	String name = request.getParameter("user_name");
+	String id = request.getParameter("user_id");
+	String pw = request.getParameter("user_pw");
+	String gender = request.getParameter("gender");
+	//String hobby = request.getParameter("hobby"); //취미는 다중데이터가
+				//올수있기때문에 이렇게만 안한다.
+	String[] hobbys = request.getParameterValues("hobby");
+	String region = request.getParameter("region");
+%>    
+    
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+
+<h2>form태그로 전달된 데이터 읽기 학습</h2>
+<p>
+#이름 : <%= name %> <br/>
+#ID : <%= id %> <br/>
+#PW : <%= pw %> <br/>
+#성별 : <%= gender %> <br/>
+#취미 : <%= Arrays.toString(hobbys) %> <br/>
+#지역 : <%= region %> <br/>
+</p>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+######################################################################################################
+예제17)앞에서 만든 bmi 페이지(입력받은 데이터를 처리하는 페이지 앞의 req_user_info와 같은역할)를 이용하여 내장객체 request를통한
+	파라미터 전송 및 처리 연습
+
+req_bmi_form.jsp 만들기
+
+1)req_bmi_form.jsp에서 입력한 데이터가 req_bmi.jsp로 흘러들어가게해서(매개변수전달) bmi의 페이지연산이 실행되게하시오
+
+//req_bmi_form페이지 실행결과
+
+
+//req_bmi페이지 실행결과
+체질량 지수(BMI) 계산
+- 신장: 180
+- 체중: 75
+BMI 지수 : 23.148
+당신은 과체중입니다.
+할루 출력종료~
+######################################################################################################
+
+
+
+답:
+
+
+
+//req_bmi_form
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+	pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+
+	<form action="http://localhost:8181/JSPBasic/JspObj/req_bmi.jsp">
+		<h3>
+			#신장: <input type="text" name=cm size="10px" />cm
+		</h3>
+		<h3>
+			#체중: <input type="text" name=kg size="10px" />kg
+		</h3>
+
+
+		<input type="submit" value="확인" />
+	</form>
+</body>
+</html>
+
+
+//req_bmi 위에서 원래 만든거랑 똑같은거임
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+    
+<%
+
+String cm = request.getParameter("cm");
+String kg = request.getParameter("kg");
+%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+
+<h2>체질량 지수(BMI) 계산 </h2>
+<hr/>
+
+<p>
+- 신장: <%= cm %><br/>
+- 체중: <%= kg %><br/>
+</p>
+
+<p>
+<%
+double m = Double.valueOf(cm)*0.01;
+double bmi = Double.valueOf(kg) / (m * m);
+bmi = Math.round(bmi*1000)*0.001;
+//bmi = Math.round(bmi*1000)/1000.0;
+%>
+BMI 지수 : <%= bmi %> <br/>
+
+<%
+if(bmi > 23) out.print("당신은 과체중입니다.<br/>");
+else if (bmi < 18.5) out.print("당신은 저체중입니다.<br/>");
+else out.print("당신은 정상체중입니다.<br/>");
+%> 
+
+할루 출력종료~
+</p>
+
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+######################################################################################################
+예제18)form태그를 이용해서 해당페이지에서 입력된 값을 특정 페이지에 파라메터로 설정하여 보내고 
+	request 내장객체의 메서드로 파라미터를 받아와서 활용하기
+
+사진은 네이버에서 대충구해라(01.jpg, 02.jpg)
+
+
+//req_album.jsp -> 두 그룹에 대한 정보를 클릭하여 해당 그룹의 그룹명을 파라미터로 하여 req_album_result.jsp에 전송한다.
+	-모든 내부 내용은 중앙정렬되어야하고 사진도 중앙정렬
+	-마지막에 확인버튼은 위에가 5열이라서 네모박스 1열조그만한거 안에 들어가있는데 열병합해서 네모가 전체를 감싸게하라
+
+4행 5열짜리 표를 만드시오
+사진은 01, 02이름으로 만들고 저장은 jspObj폴더안에 간편하게 해라
+1열: 동그라미버튼
+2열: 앨범커버사진
+3열: 가수이름
+4열: 앨범제목
+5열: 발매일자
+
+1행: field
+2~3행 : value
+4행: 확인버튼
+
+//req_album_result //파라미터를 받아서 각 그룹이 무엇이냐에 따라서 아래의것을 출력
+	
+선택하신 앨범정보		//h2
+당신이 선택한 앨범은 <?>입니다. //문단처리
+			//구분선
+타이틀곡 <제목>		//h3
+			//유튜브에서 타이틀곡 영상가져오기
+
+
+
+
+#열병합: <td colspan = "열 병합 개수"></td>
+
+#행병합: <td rowspan = "행 병합 개수"></td>
+
+#div를 통해 전체 중앙정렬처리하기
+<div align = "center">
+</div>
+
+#동영상넣기
+유튜브-동영상우클릭-소스코드복사-붙여넣기
+<iframe width="640" height="360" src="https://www.youtube.com/embed/HrTK1wVd3sg" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+
+
+근데 이대로만해도 수동재생은됨(width와 height는 알아서 수정하면됨)
+하지만 자동재생이 안됨
+자동재생하려면 url주소뒤에 ?rel=0;apm;autoplay=1을 붙이면 페이지 출력시 자동실행이라고하는데 다해봐도 안된다.
+	이건 일단 알고만있자 중요한게 이건아님
+
+######################################################################################################
+
+
+
+
+
+답:
+
+
+
+
+
+
+
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+
+<div align=center>
+<form action = "req_album_result.jsp">
+<table border ="1" >
+	<tr>
+		<td></td>
+		<td>앨범 커버</td>
+		<td>가수</td>
+		<td>앨범 제목</td>
+		<td>발매일</td>
+	</tr>
+	<tr>
+		<td><input type = "radio" name = group value = "티아라"></td>
+		<td align = "center"><img src = "01.jpg" width = "200px" height = "200px" alt = "티아라임" /></td>
+		<td >티아라</td>
+		<td>다시한번</td>
+		<td>2021.09.24</td>
+	</tr>
+	<tr>
+		<td><input type = "radio" name = group value = "소녀시대"></td>
+		<td align = "center"><img src = "02.jpg" width = "200px" height = "200px" alt = "소녀시대임" /></td>
+						
+		<td >소녀시대</td>
+		<td>소녀시대의 소녀시대</td>
+		<td>2021.09.23</td>
+	</tr>
+	<tr>
+		<!--  td colspan="5"--> <!--5열을 병합하라는 의미. 근데 td를 5개아만들면 병합할것도 없지 않는가?-->
+		
+		<td colspan="5">
+		<input type = "submit" value = "확인" />
+		</td>
+	</tr>
+	
+
+</table>
+</form>
+</div>
+
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+    
+<%
+	String group = request.getParameter("group");
+%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+
+<% if(group.equals("티아라")){ %>
+	<div align = "center">
+		<h2>선택하신 앨범정보</h2>
+		<p>
+			당신이 선택한 앨범은 티아라의 무한한앨범 뽀삐뽀삐입니다~!
+			
+		</p>
+		<hr/>
+		<h3>타이틀곡 팔로우미~팔로우미~</h3>
+	</div>	
+<%} else{%>
+	<div align = "center">
+		<p>
+			당신이 선택한 앨범은 소녀시대의 소녀시대입니다~!
+			
+		</p>
+		<h3>타이틀곡 어리다고놀리지말아요.</h3>
+		<iframe width="640" height="360" src="https://www.youtube.com/embed/AdjhDjKbcUg?rel=0;apm;autoplay=1" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+	</div>
+<%} %>
+
+
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+21.09.25_5회차
+=======================================================================================================
+*requestMethod(get,post), response(getCharacterEncoding,sendRedirect), css
+=======================================================================================================
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+######################################################################################################
+예제19) form없이 요청파라미터 넘기는법 
+
+form 빼고 해당내용과 관계없는것들 다빼라
+3행4열이되게해라
+
+1)제목을 클릭했을때 req_albumnoform으로 이동하게하라
+	-이동하면 form과 input submit 이 없으니까 널포인트에러가 날것이다.
+		-링크는 그냥그리로 이동하는것일뿐 요청파라미터를 송신할수없다.
+	-그래서 에러나면 그냥 url로 파라미터를 송신해서 해당 페이지가 요청파라미터를 읽어 페이지를 뜨게하라
+
+2)이번엔 url입력창에 사람이 직접 쳐서 파라미터를 주지말고 jsp코드상에서 링크에 파라미터를 주게 직접 해봐라
+
+-나머지 사진 이름 등 다 똑같은 방식임
+
+######################################################################################################
+
+
+
+답:
+
+
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+
+<div align=center>
+
+<table border ="1" >
+	<tr>
+		<td>앨범 커버</td>
+		<td>가수</td>
+		<td>앨범 제목</td>
+		<td>발매일</td>
+	</tr>
+	<tr>
+
+		<td align = "center"><img src = "01.jpg" width = "200px" height = "200px" alt = "티아라임" /></td>
+		<td >티아라</td>
+		<td><a href = "req_album_result.jsp?group=티아라">다시한번</a></td>
+		<td>2021.09.24</td>
+	</tr>
+	<tr>
+
+		<td align = "center"><img src = "02.jpg" width = "200px" height = "200px" alt = "소녀시대임" /></td>
+						
+		<td >소녀시대</td>
+		<td><a href = "req_album_result.jsp?group=소녀시대">소녀시대의 소녀시대</a></td>
+		<td>2021.09.23</td>
+	</tr>
+
+	
+
+</table>
+
+</div>
+
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+######################################################################################################
+개념정리_요청방식에서 요청파라미터를 보내는 get방식과 post 방식의 차이점
+
+
+* JSP&Servlet API문서
+- http://docs.oracle.com/javaee/7/api/
+
+* HttpRequest 방식
+- GET 방식
+1. 서버에 데이터를 요청하는 용도.
+2. 전송하는 데이터가 주소에 묻어서 감.
+3. 전송했던 데이터는 브라우저의 히스토리에 접속했던 주소와 함께 남아 있어 보안성에 취약함.
+4. 게시판 글 조회나 검색 같이 서버의 정보를 가져올 필요성이 있을 때 사용함.
+5. 전송할 수 있는 최대 크기는 브라우저별로 다르지만 크기가 정해져있음.
+6. HTML form태그가 반드시 필요하지는 않습니다.
+
+
+- POST 방식
+1. 서버에 데이터를 전송하는 용도.
+2. 전송되는 데이터가 URL에 묻어나가지 않고 전송 객체의 메시지 바디를 통해 전달됨.
+3. 브라우저에 전달되는 데이터가 남지 않기 때문에 보안성에 강함.
+4. 비밀번호나 주민번호 등 private한 데이터를 서버에 전송해야 할 때 사용함.
+5. 반드시 HTML form태그가 필요합니다.
+6. 데이터 양의 제한이 없기 때문에 대량의 데이터를 전송할 수 있습니다.
+
+
+* GET/ POST 방식 브라우저 한글처리
+- 톰캣서버의 기본 문자처리 방식은 IOS-8859-1 방식입니다.
+- 따라서 개발자가 별도의 한글 인코딩을 하지 않으면 서버로 전송된 데이터의 한글들이 깨져보이는 현상이 발생합니다.
+
+
+1. GET 방식의 한글처리
+- server.xml 파일 수정
+- <connector> 에 속성 값으로 URIEncoding="utf-8"
+
+
+2. POST 방식의 한글처리
+- post 방식을 처리하는 메서드(스크립트릿)에 request.setCharacterEncoding("utf-8");
+
+
+
+
+
+######################################################################################################
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+######################################################################################################
+예제20) 서버에게 요청시 request method를 post방식으로 파라미터 전송하기
+
+jspobj폴더를 JspObjRequest로 변경
+req_post_form.jsp 파일생성
+
+
+
+
+1)form을 통해 url에 요청파라미터를 입력하게한후 페이지를 불러오는방식으로 아래가 출력되게하라
+	-이렇게하면 문제점이 비번도 url에 나온다는것이다.
+//req_post_form.jsp
+-아이디:
+-비밀번호:
+-이름:
+전송	//버튼
+
+//req_post_take.jsp
+# 아이디: 1
+# 비밀번호: 1
+# 이름: 1
+
+
+f12를 누르고 network에서 클라이언트가 요청한 방식(request method)이 get인걸 확인하라
+	-즉 아무것도 안하면 url에 파라미터가 묻어나오는 get방식으로 디폴트설정된다는것을 인지하라
+
+2-1)특정페이지에서 다른페이지로 서버에게 요청할때 버퍼에 입력된 파라미터들을 post방식으로 전송하라
+	-요청은 요청인데 전송의 느낌이 강하다.
+	-이렇게 보내면 한글이깨진다.
+		-jsp의 지시자에서도 utf-8로해주고 이클립스의 workspace에서도 utf-8로 해주고 그밖의 문서들도 다 utf-8햇는데
+		 왜또 깨지는 현상이 발생하는가?
+			-그건 톰캣서버의 기본처리 언어가 한글이 아니기때문이다. 하지만 겟으로
+				보낼때는 기본처리언어를 자동으로 utf-8로 바꿔주도록 9.0에서 설계됐으나 
+				post는 안됐음으로 지가노력해야함
+2-2)한글 문제를 해결하라
+	-get은 server.xml 설정파일에서 한글 설정해줘야하고 post는 메서드를 통해 설정해줘야함(서버에서 출력할 페이지측에서 실행될때
+		나는 이제부터 request객체로 오는 요청파라미터 등모든것을 utf-8로 처리할것이다 라는 뜻인듯)
+
+			
+
+
+
+**********참고
+#요청 : 클라이언트 -> 서버
+	-이과정에서 클라이언트가 서버에 보낼때 파라미터를 함께 보내는 것을 요청 파라미터라한다.
+요청방식에는 2가지가있다.
+get, post
+둘다 서버에 페이지를 요청하면서 동시에 파라미터를 전송한다.
+그 파라미터를 요청파라미터라한다.
+
+
+톰켓서버의 기본언어처리방식을 한글로 설정안해주면 깨진다.
+get: get도 기본언어처리방식을 한글로 설정해주어야하는데 톰켓 9.0에서부터 굳이 한글로 안해줘도 자동으로 되게끔 해놨다.
+	-회사가 톰캣서버 8.0을 쓰고 있다면 post처럼 servers-server.xml의 63번줄에서 수정해주어야함
+post: 이거는 아쉽게 자동처리를 안해놔서 직접입력해야한다.
+ 
+
+#요청파라미터 전송하는 법
+1)url을 통해 요청하기 -> Get 방식
+	-브라우저에서 url뒤에 수동입력
+	-jsp 또는 html에서 form을 통해 body에 입력한뒤 상대편 page의 url뒤에 자동으로 입력하여 파라미터를 보낸다.
+2)url을 통하지 않고 전송하기 -> post 방식
+	-form을 사용해야만 한다.
+		-form을 통해 body에 입력한뒤 상대편 page로 파라미터를 바로보낸다.
+
+
+#servers-server.xml에서 서버설정변경하는법
+63 connect: get형식의 요청파라미터를 읽을때 기본언어처리를 한글로 하게할수 있다.(한글이 안깨지게 할수있다)
+152 context: context root를 path = ""속성으로 변경할수 있다.
+
+######################################################################################################
+
+
+
+답:
+
+
+
+//req_post_form.jsp
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+
+<%--
+	-전송방식을 post로 사용하기 위해서는 반드시 form 태그가 필요합니다.
+	 form태그의 method라는 속성을 "post"로 설정하면 요청방식이 post방식으로
+	  전송됩니다.
+ --%>
+
+<form action = "req_post_take.jsp" method = post>
+	-아이디: <input type = "text" name = "id" size = "10px" /><br />
+	-비밀번호: <input type = "password" name = "pw" size = "10px" /><br />
+	-이름: <input type = "text" name = "name" size = "10px" /><br />
+	<input type = "submit" value = "전송" />
+</form>
+
+</body>
+</html>
+
+
+
+
+
+
+//req_post_take.jsp
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+	pageEncoding="UTF-8"%>
+
+<%
+//post 방식을 통해 전송된 데이터의 한글처리는 아래의 메서드를 사용함
+	request.setCharacterEncoding("utf-8");
+
+	String id = request.getParameter("id");
+	String pw = request.getParameter("pw");
+	String name = request.getParameter("name");
+%>
+
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+
+<p>
+	# 아이디: <%= id %> <br />
+	# 비밀번호: <%= pw %> <br />
+	# 이름: <%= request.getParameter("name") %> <br />
+</p>
+
+
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+######################################################################################################
+개념정리_response
+
+* response 객체의 이해
+- 웹 브라우저의 요청에 응답하는 것을 response라고 합니다.
+- 이러한 응답의 정보를 가지고 있는 객체를 response객체라고 합니다.
+
+- response 객체 주요 메서드
+1. getCharacterEncoding(): 응답할 때의 문자의 인코딩 형태를 구합니다.
+1. addCookie(Cookie c): 쿠키를 지정합니다.
+1. sendRedirect(URL): 지정한 URL로 이동합니다.
+
+* out 객체의 이해
+- JSP 페이지가 생성하는 모든 내용은 out 기본 객체를 통해 전송됩니다.
+- JSP 페이지 내에서 사용하는 비스크립트 요소들(HTML코드와 텍스트)이 out 객체에 전달됩니다.
+- 값을 출력하는 표현식(expression)의 결과값도 out객체에 전달됩니다.
+
+######################################################################################################
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+######################################################################################################
+예제21) response를 통해 구조를 효율적으로 설계하기
+
+
+1)아래 요구사항을 충족하는 페이지를 만들어라
+
+JspObjResponse폴더생성
+res_basic01.jsp 파일생성
+res_basic02.jsp 파일생성
+res_basic_ok.jsp 파일생성
+res_basic_no.jsp 파일생성
+
+
+
+01에서 나이입력
+	-입력된 정보를 파라미터로하여 02에게 url뭍히지 않고 전송
+
+02는 나이를 판별하여 20세이상일시 ok로 보내고 미만일시 no로 전송
+
+ok는 아래 출력
+성인입니다. 주류 구매 가능합니다. 
+처음으로				//01로 돌아가는 링크작성
+
+no는 아래 출력
+학생입니다. 주류구매 불가능합니다. 	
+처음으로				//01로 돌아가는 링크작성
+
+
+
+######################################################################################################
+
+
+
+답:
+
+
+
+
+//res_basic01.jsp
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+
+	<form action = "res_basic02.jsp" method = "post">
+		-당신의 나이는?? <input type="text" name = "age" size = "5" />
+		<br/>
+		<input type = "submit" value = "확인" />
+	</form>
+
+</body>
+</html>
+
+
+//res_basic02.jsp
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+	pageEncoding="UTF-8"%>
+
+<%
+	String strAge = request.getParameter("age");
+	int age = Integer.parseInt(strAge);
+	
+	String url = "http://localhost:8181/JSPBasic/JspObjResoponse/res_basic_ok.jsp";
+	if (age >= 20) {
+		//response객체가 제공하는 sendRedirect() 메서드의 매개값으로 이동시킬
+		//url 주소를 적으면 해당 페이지로 강제이동함
+		response.sendRedirect(url);		
+	}else{
+		response.sendRedirect("res_basic_no.jsp");
+	}
+%>
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+
+
+</body>
+</html>
+
+
+
+
+
+
+
+//res_basic_ok.jsp
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+
+<h3>성인입니다. 주류를 구매할수 있습니다.</h3>
+<a href = "res_basic01.jsp">처음으로</a>
+
+</body>
+</html>
+
+
+
+
+
+
+
+//res_basic_
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+<h3>학생입니다. 주류를 구매할수 없습니다.</h3>
+<a href = "res_basic01.jsp">처음으로</a>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+######################################################################################################
+예제22) response를 통해 구조를 효율적으로 설계하기
+
+1)이전에 만든 앨범 페이지 두개를 이용해서 관리구조를 효율적으로 만들어라
+
+req_album_result.jsp, req_album.jsp 두가지는 album에서 입력받고 result에서 티아라로 가는길과
+	소녀시대 페이지로 가는 길 두가지를 모두 가지고있다.
+	이렇게하면 관리적측면에서 안좋으니 album_response.jsp, tiara.jsp, girls.jsp를 만들고 활용하라
+		-방식: album.jsp에서 입력받고 response에서 파라미터값에 알맞게 tiara 또는 girls로 알맞게 리스폰스해주면됨
+			-tiara 및 girls의 내용물은 대충 알아서 복사하던가 다시만들던가
+
+
+새로만들 파일이름: 원래는 response 연습중이니 이름을 req라하면되지만 파일이 많아져서 헷갈리니
+		본래 따온 파일의 req를 따라가도록 한다.
+
+req_album.jsp
+req_album_result.jsp
+req_tiara.jsp
+req_girls.jsp
+
+*할땐 상대경로와 절대경로로 나눠서해봐라 
+	-절대경로
+		-url 절대경로
+		-uri 절대경로
+			uri: 도메인주소+포트번호 뒤부터 모든것
+	-상대경로
+	
+######################################################################################################
+
+
+
+
+
+
+
+
+
+
+
+
+
+답:
+
+
+
+
+
+
+
+
+
+
+
+//req_album.jsp
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+	pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+
+	<div align="center">
+	<form action = "req_album_result.jsp" >
+	
+	<table border = "1">
+	<tr>
+		<td>
+		선택
+		</td>
+		<td>
+		앨범커버사진
+		</td>
+		<td>
+		가수이름
+		</td>
+		<td>
+		앨범제목
+		</td>
+		<td>
+		발매일자
+		</td>
+	</tr>
+	<tr>
+		<td>
+		<input type = "radio" name = "group" value = "티아라">
+		</td>
+		<td>
+		<img src = "01.jpg" width = "200px" height = "200px"
+		alt = "티아라">
+		</td>
+		<td>
+		티아라
+		</td>
+		
+		<td>
+		뽀삐뽀삐
+		</td>
+		<td>
+		21.09.24
+		</td>
+	</tr>
+	<tr>
+		<td>
+		<input type = "radio" name = "group" value = "소녀시대">
+		</td>
+		<td>
+		<img src = "02.jpg" width = "200px" height = "200px"
+		alt = "소녀시대">
+		</td>
+		<td>
+		소녀시대
+		</td>
+		<td>
+		기억의 습작
+		</td>
+		<td>
+		21.09.25
+		</td>
+	</tr>
+	<tr>
+		<td colspan = "5">
+		<input type = "submit" value = "확인">
+		</td>
+	</tr>
+	</table>
+	</form>
+	</div>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+//req_album_result.jsp
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+    
+<%
+String group = request.getParameter("group");
+%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+
+<%
+if(group.equals("티아라")){
+	response.sendRedirect("req_tiara.jsp");
+} else if(group.equals("소녀시대")){
+	response.sendRedirect("req_girls.jsp");
+} else{
+	out.print("즐! 그런 그룹 여긴 없거든! 흥!");
+}
+%>
+
+
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+//req_tiara.jsp
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+    
+<%
+String group = request.getParameter("group");
+%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+<h2>선택하신 앨범정보</h2>
+
+
+
+당신이 선택한 앨범은 티아라거입니다.
+<hr/>
+
+<h3>타이틀곡 뽀삐뽀삐</h3> 
+<iframe width="640" height="360" src="https://www.youtube.com/embed/AdjhDjKbcUg" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+
+
+
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//req_girls.jsp
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<%
+String group = request.getParameter("group");
+%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+<h2>선택하신 앨범정보</h2>
+
+당신이 선택한 앨범은 소녀시대거입니다.
+<hr/>
+
+<h3>타이틀곡 뽀삐뽀삐</h3>
+<iframe width="640" height="360" src="https://www.youtube.com/embed/AdjhDjKbcUg" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+
+
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+######################################################################################################
+개념정리_CSS를 HTML에 적용하여 스타일변경하기
+
+
+#CSS(cascade style sheet)
+-HTML에 디자인 요소를 적용하는 언어는 CSS임
+-CSS를 HTML에 적용하는 방식에는 3가지 방식이 있음
+1.인라인 스타일 시트 - 태그 내부에 해당 태그에만 적용되는 스타일을 지정
+
+
+
+<div align="center" style = "border: 2px solid red; width : 80%; padding: 15px">
+style의 벨류값은 모두 css에서 작용하는 명령어임(html은 벨류값을 대입연산자를이용해서 넣지만 css는 클론을 이용해서 넣나보다)
+border는 테두리선을 만하는 것으로, 선굵기는 2px, 선의 종류는 solid(실선), 선의 색갈은 red
+
+solid 대신 dashed라고 쓰면 점선으로 바뀜
+red 대신 blue라 쓰면 블루가되고 
+
+width는 80%로 해도된다.
+패딩은 박스내의 간격을 의미한다 (한글로따지면 여백)
+
+2.내부스타일시트 - 태그의 스타일을 head태그에서 따로 지정
+태그에 내부 스타일 시트방식으로 디자인을 적용하려면 선택자를 이용합니다.
+	-즉 css 디자인을 적용해야하는 태그들을 따로 분류하는것이다.
+		-1번의 인라인스타일시트가 하나의 태그를 변경하는거면 얘는 다중태그를 변경하는것이라 보면 되느니라
+-클래스선택자: .[클래스이름]	//보통 css
+-아이디선택자: #[아이디이름]	//보통 자바스크립트
+-태그 선택자: [태그이름]
+
+3.외부 스타일 시트- 외부에 .css 파일을 따로 만들어 디자인 소스만 모두 지정한 뒤 HTML에서 링크를 통해 로딩시킴
+	-이건 홈페이지만드는 실습할때 할거임 지금 안할거
+
+
+######################################################################################################
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+######################################################################################################
+예제23) CSS->HTML
+
+res_login_form.jsp 파일 만들기
+
+
+sendRedirect 로그인 연습
+//table을 2행 2열짜리로 만들고 좌측1열은 아이디입력, pw입력이고 우측1열은 행을 병합해서 로그인 버튼이 들어가게하라
+		//로그인클릭시 id pw정보가 post 방식으로 전송
+ID를 입력!	//text 박스안에 회색으로 해당문구넣고 입력시 사라지게하라
+PW를 입력!	//text 박스안에 회색으로 해당문구넣고 입력시 사라지게하라
+
+이렇게 간단하게 박스를 만든후 CSS를 연습해보자
+
+
+1)css를 html에 적용하는 방식인 인라인 스타일 시트를 이용하여 div태그 내부에 있는것들은 전부다 아래 조건에맞게 변경해라
+테두리선
+선굵기: 2px~20px
+선종류: 점선 또는 실선
+선색깔: 빨간색 또는 블루
+너비: 80%
+글자와 div박스사이의 여백: 15px
+
+2)내부 스타일시트방식을 이용하여 특정그룹을 만들고 해당 그룹에 로그인 버튼을 담당하는 태그를 가입시켜서 아래 양식으로 변경하라
+특정그룹 그룹명: login_btn  -> 특정태그들을 그룹으로 엮어주는 선택자의 종류는 클래스로 하여라
+
+버튼배경색: 노란색
+너비: 60px
+높이: 50px
+폰트: cursive
+버튼박스와 로그인 글자와의 간격: 2px(200px도 해봐라 간격이 넓어진다)
+
+
+
+######################################################################################################
+
+
+
+답:
+
+
+
+
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+	pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+
+<style type = "text/css">
+	.login_btn{
+		background-color: yellow;
+		width: 60px;
+		height: 50px;
+		font-family: cursive;
+		padding: 2px;
+	}
+</style>
+	
+</head>
+<body>
+	<div align="center" style = "border: 20px dashed red; width : 80%; padding: 15px">
+		<h3>sendRedirect 로그인 연습</h3>
+		<form action="res_Login_ok.jsp" method="post">
+			<table border="1">
+				<tr>
+					<td><input type="text" name="id" size="10px" placeholder="ID를 입력!" /></td>
+					<td rowspan = "2"><input class = "login_btn" type="submit" value="로그인" /></td>
+					<br />
+				</tr>
+				<tr>
+					<td><input type="password" name="pw" size="10px" placeholder="PW를 입력!"></td>
+				</tr>
+			</table>
+		</form>
+	</div>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+######################################################################################################
+예제24) CSS->HTML
+
+만들 페이지명: res_login_ok.jsp 이거외에 밑에서 말하는 파일도 만들어야함
+
+<%--
+	- 이 페이지에서는 넘어온 아이디값과 비밀번호값을 
+	받아서 처리합니다.
+	만약 아이디가 'abc1234'이고 비밀번호가 'xyz9876'이라면	//현재 DB가 없기때문에 이 id, pw로 고정한다
+	아이디가 일치하지 않았을 경우
+	'res_id_fail.jsp'로 리다이렉팅해서
+	'존재하지 않는 회원입니다'를 브라우저에 출력하세요.
+	아이디가 일치할 경우 비밀번호도 확인해서 틀렸을 경우
+	'res_pw_fail.jsp'로 리다이렉팅해서
+	'비밀번호가 틀렸습니다'를 브라우저에 출력하세요.
+	ID와 PW가 전부 일치했을 경우 'res_welcome.jsp'로
+	리다이렉팅하여 '회원님 반갑습니다'를 출력하세요.
+
+ --%>
+
+
+######################################################################################################
+
+
+
+답:
+
+
+
+
+
+
+
+
+//res_login_form.jsp
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+	pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+
+<style type = "text/css">
+	.login_btn{
+		background-color: yellow;
+		width: 60px;
+		height: 50px;
+		font-family: cursive;
+		padding: 2px;
+	}
+</style>
+	
+</head>
+<body>
+	<div align="center" style = "border: 20px dashed red; width : 80%; padding: 15px">
+		<h3>sendRedirect 로그인 연습</h3>
+		<form action="res_login_ok.jsp" method="post">
+			<table border="1">
+				<tr>
+					<td><input type="text" name="id" size="10px" placeholder="ID를 입력!" /></td>
+					<td rowspan = "2"><input class = "login_btn" type="submit" value="로그인" /></td>
+					<br />
+				</tr>
+				<tr>
+					<td><input type="password" name="pw" size="10px" placeholder="PW를 입력!"></td>
+				</tr>
+			</table>
+		</form>
+	</div>
+</body>
+</html>
+
+
+
+
+
+
+
+
+//res_login_ok.jsp
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+    
+<%
+request.setCharacterEncoding("utf-8");
+
+String id = request.getParameter("id");
+String pw = request.getParameter("pw");
+%>
+
+<%
+if(id.equals("abc1234")){
+	if(pw.equals("xyz9876")){
+		response.sendRedirect("res_welcom.jsp");	
+	} else{
+		response.sendRedirect("res_pw_fail.jsp");
+	}
+} else{
+	response.sendRedirect("res_id_fail.jsp");
+}
+%>
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+
+</body>
+</html>
+
+
+
+
+
+
+
+//res_id_fail.jsp
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+	존재하지 않는 회원입니다.<br/>
+	<%@ include file = "footer.jspf" %>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+//res_pw_fail.jsp
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+	비밀번호가 틀렸습니다.<br/>
+	<%@ include file = "footer.jspf" %>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+//res_welcom.jsp
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+	회원님 반갑습니다 ^^<br/>
+	<%@ include file = "footer.jspf" %>
+</body>
+</html>

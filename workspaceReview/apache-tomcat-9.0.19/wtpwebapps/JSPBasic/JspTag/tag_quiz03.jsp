@@ -27,6 +27,8 @@ int count = 0;
 for(int i=0;i<party.size();i++){
 	if(party.get(i)==jobs[r]) count++;
 }
+
+
 %>
 
 당신에게 부여된 역할은 <strong><%= party.get(party.size()-1) %></strong>입니다.<br />
