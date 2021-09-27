@@ -43,6 +43,9 @@
 	
 
 </table>
+ 
+	<%@ include file = "../Application/app_basic02.jsp" %>  	
+	<hr/><h3>방문자 수 : <%= albumCount %></h3><hr/>
 </form>
 </div>
 

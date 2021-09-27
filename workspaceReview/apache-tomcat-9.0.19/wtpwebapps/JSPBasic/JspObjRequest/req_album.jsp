@@ -74,5 +74,7 @@
 	</table>
 	</form>
 	</div>
+	
+	<%@ include file = "../Application/app_basic02.jsp" %>
 </body>
 </html>
