@@ -1,0 +1,1035 @@
+21.09.30_10회차(9강) 
+=======================================================================================================
+*JavaBean, JspActionTag(useBean,getProperty,setProperty)
+=======================================================================================================
+
+
+
+
+
+
+
+
+
+
+
+
+
+######################################################################################################
+개념정리_자바빈 기본개념
+
+ 자바빈 (JAVA Bean)
+- 자바빈이란 JAVA언어의 데이터(변수)와 기능(메서드)으로 이루어진 클래스입니다.
+- 자바빈은 데이터를 저장하는 변수, 데이터를 읽어오는 메서드(getter), 데이터를 저장할 때 사용되는 메서드(setter)로 이루어져 있습    니다.
+- 자바빈은 데이터베이스와의 반복적인 작업을 효율적으로 처리하기 위해 사용합니다.
+
+/*
+ * 자바빈
+ * 자바빈은 데이터베이스와의 반복 데이터 작업을 쉽게 처리하기 위한 클래스
+ * 일반적으로 데이터베이스의 컬럼과 1:1로 매칭되는 멤버변수(필드)를 선언
+ */
+
+	/*
+	 * 자바빈 클래스는 일반적으로 기본생성자(필수) 1개
+	 * 와 모든 멤버변수를 초기화하는 생성자(선택)를 1개 선언합니다.
+	 */
+	
+
+
+######################################################################################################
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+######################################################################################################
+예제37) java bean 클래스 만들기
+
+kr.co.jspbasic.user 패키지이름
+UserBean	클래스
+
+1)기본적인 java bean 형태로 UserBean 클래스를 만들어라(기능은 게터세터만 있으면되고 멤버변수는 id, pw, name, email로 하라_은닉성보장)
+
+
+
+######################################################################################################
+
+​
+
+답:
+
+package kr.co.jspbasic.user;
+
+/*
+ * 자바빈
+ * 1.자바빈은 데이터베이스와의 반복 데이터 작업을 쉽게 처리하기 위한 클래스
+ * 2.일반적으로 데이터베이스의 컬럼과 1:1로 매칭되는 멤버변수(필드)를 선언
+ * 3.자바빈 클래스는 은닉(캡슐화)를 사용하여 데이터를 보호합니다.
+ */
+
+public class UserBean {
+	private String id;
+	private String pw;
+	private String name;
+	private String email;
+	
+	/*
+	 * 자바빈 클래스는 일반적으로 기본생성자(필수) 1개
+	 * 와 모든 멤버변수를 초기화하는 생성자(선택)를 1개 선언합니다.
+	 */
+	
+	public UserBean() {}
+	public UserBean(String id, String pw, String name, String email) {
+		super();
+		this.id = id;
+		this.pw = pw;
+		this.name = name;
+		this.email = email;
+	}
+	
+	
+	public String getId() {
+		return id;
+	}
+	public void setId(String id) {
+		this.id = id;
+	}
+	public String getPw() {
+		return pw;
+	}
+	public void setPw(String pw) {
+		this.pw = pw;
+	}
+	public String getName() {
+		return name;
+	}
+	public void setName(String name) {
+		this.name = name;
+	}
+	public String getEmail() {
+		return email;
+	}
+	public void setEmail(String email) {
+		this.email = email;
+	}
+	
+	
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+######################################################################################################
+예제38) JavaBean 객체 만들어 사용하기
+
+JavaBean 폴더 생성
+bean_make.jsp 파일생성
+bean_use.jsp 파일생성 : 원래 make에서 받아서 db에게 보내는거인데 아직 db를 안배웠으니 bean_use.jsp를 디비라생각하고 보낸다.
+
+1)아래의 코드는 javabean 클래스를 사용하지않아서 매우 귀찮고 불편하다. javabean으로 바꿔라 
+	-bean_use에서 request는 주석처리하고진행
+	-parameter는 인풋태그 쓰지말고 그냥 웹브라우저의 url에서 입력하게하라
+
+
+//bean_make.jsp
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+    
+<%
+	String id = request.getParameter("id");
+	String pw = request.getParameter("pw");
+	String name = request.getParameter("name");
+	String email = request.getParameter("email");
+	
+	
+	
+	request.setAttribute("user_id", id);
+	request.setAttribute("user_pw", pw);
+	request.setAttribute("user_name", name);
+	request.setAttribute("user_email", email);
+	
+%>
+
+<jsp:forward page = "bean_use.jsp" />
+
+
+
+
+
+
+
+//bean_use.jsp
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+    
+<%
+	String id = request.getParameter("id");
+	String pw = request.getParameter("pw");
+	String name = request.getParameter("name");
+	String email = request.getParameter("email");
+	
+	
+	
+	request.setAttribute("user_id", id);
+	request.setAttribute("user_pw", pw);
+	request.setAttribute("user_name", name);
+	request.setAttribute("user_email", email);
+	
+%>
+
+<jsp:forward page = "bean_use.jsp" />
+
+
+
+######################################################################################################
+
+​
+
+답:
+
+
+
+//bean_make.jsp
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+
+<%@
+	page import = "kr.co.jspbasic.user.UserBean"  
+%>
+    
+<%
+	String id = request.getParameter("id");
+	String pw = request.getParameter("pw");
+	String name = request.getParameter("name");
+	String email = request.getParameter("email");
+	
+	
+	UserBean user = new UserBean(id, pw, name, email);
+	request.setAttribute("user", user);
+	/*
+	request.setAttribute("user_id", id);
+	request.setAttribute("user_pw", pw);
+	request.setAttribute("user_name", name);
+	request.setAttribute("user_email", email);
+	*/
+	
+%>
+
+<jsp:forward page = "bean_use.jsp" />
+
+
+
+
+//bean_use.jsp
+<%@page import="kr.co.jspbasic.user.UserBean"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+    
+<%
+	UserBean user = (UserBean)request.getAttribute("user");
+%>    
+    
+
+
+# 아이디: <%= user.getId() %> <br/>
+# 비밀번호: <%= user.getPw() %> <br/>
+# 이름: <%= user.getName() %> <br/>
+# 이메일: <%= user.getEmail() %> <br/>
+
+<%-- 
+# 아이디: <%= request.getAttribute("user_id") %> <br/>
+# 비밀번호: <%= request.getAttribute("user_pw") %> <br/>
+# 이름: <%= request.getAttribute("user_name") %> <br/>
+# 이메일: <%= request.getAttribute("user_email") %> <br/>
+--%>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+######################################################################################################
+개념정리_액션태그를 사용하여 자바빈 사용하기
+
+ 자바빈 (JAVA Bean)
+- 자바빈이란 JAVA언어의 데이터(변수)와 기능(메서드)으로 이루어진 클래스입니다.
+- 자바빈은 데이터를 저장하는 변수, 데이터를 읽어오는 메서드(getter), 데이터를 저장할 때 사용되는 메서드(setter)로 이루어져 있습    니다.
+- 자바빈은 데이터베이스와의 반복적인 작업을 효율적으로 처리하기 위해 사용합니다.
+
+- JSP에서는 액션태그를 사용하여 자바빈을 사용할 수 있는 방법이 있습니다.
+- JSP 액션태그로 자바빈 사용하는 방법
+ex) <jsp:useBean id="자바빈 객체 이름" class="자바빈이 위치한 실제 경로" scope="객체를 사용할 범위" />
+
+
+
+1. id - JSP 페이지에서 자바빈 객체에 접근할 때 사용할 이름을 지정함.
+2. class - 패키지 이름을 포함한 자바빈 클래스의 완전한 경로를 입력함.
+3. scope - 자바빈 객체를 저장할 영역을 지정함.
+
+--a. page: 하나의 JSP페이지를 처리할 때 사용되는 영역.
+--b. request: 하나의 요청을 처리할 때 사용되는 영역.
+--c. session: 하나의 웹 브라우저와 관련된 영역.
+--d. application: 하나의 웹 어플리케이션과 관련된 영역.
+
+
+- JSP 액션태그로 setter와 getter메서드를 사용할 수 있습니다.
+1. setter 사용 방법
+ex) <jsp:setProperty name="자바빈 id" property="자바빈 클래스의 변수명" value="할당할 값" />
+--a. name: 값을 변경할 자바빈 객체의 이름을 지정합니다. useBean태그에서 id속성에 지정한 값을 그대로 사용합니다.
+--b. property: 값을 지정할 프로퍼티의 이름을 지정합니다. 자바빈 클래스의 변수명을 적어줍니다.
+--c. value: 프로퍼티의 값을 지정합니다. 표현식이나 EL도 사용할 수 있습니다.
+
+2. getter 사용 방법
+ex)  <jsp:getProperty  name="자바빈  id"  property="변수명" />
+--a. name: useBean태그에서 id속성에 지정한 값을 사용합니다.
+--b. property: 출력할 프로퍼티의 이름을 지정합니다. 자바빈 클래스의 변수명을 적습니다.
+
+
+* Servlet 특징
+1. 동적 웹어플리케이션 컴포넌트
+2. .java 확장자
+3. 클라이언트의 요청에 동적으로 작동하고, 응답은 html을 이용.
+4. java thread를 이용하여 동작.
+5. MVC패턴에서 Controller로 이용됨.
+
+######################################################################################################
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+######################################################################################################
+예제39)
+
+JavaBean 폴더 생성
+bean_make.jsp 파일사용
+bean_use.jsp 파일사용 
+
+1)위 38번의 코드조차도 귀찮다!(위가 정석적인방법) 아래의 코드를 jsp의 액션태그를 통한 java bean 클래스를 이용해서 해결하라
+	-객체를 만들고 request에 저장하는게 귀찮다는뜻
+		-이 두개를 한번에하는게 jsp 액션태그의 @@@이다.
+			-두줄을 한줄로 바꿔라!
+
+//bean_make.jsp : 위문제의 답인 파일에서 객체만들고 그 객체를 request에 저장하는것을 주석처리하고 코드변형
+//bean_use.jsp : 위문제의 답인 파일 그대로 사용
+
+2)스코프연습 : 지우고하면 페이지범위인데 리퀘스트에 값이 안들어가니 null 값이 bean_use의 user참조변수에 들어가고 그걸 참조해서 사용했으니
+		NullPointerException이 일어난다. 그걸 두눈으로 확인하라(500번에러)
+	-make에서 session이라해도되지만 그러면 use에서 받는것도 request가 아니라 session으로 받아야한다.
+	-그런데 보통은 request 정도만 한다고 한다.
+
+3)bean_use에서 받는것도 귀찮다! 받는것도 make에서 만든 액션태그를 복사만해서 만들어라
+	-이렇게 use에서 복사한다고해서 새로운 user객체를 만드는게 아니라 make에서 만든 user객체를 동시에 사용하는것임을 인지
+
+######################################################################################################
+
+​
+
+답:
+
+
+
+//bean_make.jsp
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+
+<%@
+	page import = "kr.co.jspbasic.user.UserBean"  
+%>
+    
+    
+<jsp:useBean id = "user" class = "kr.co.jspbasic.user.UserBean" scope = "request" />
+<!--  스코프를 생략하면 현재페이지에서만 쓰겠다는 소리임. 스코프는 request, session, application
+다가능 -->
+
+
+<%
+	
+	user.setId(request.getParameter("id"));
+	user.setPw(request.getParameter("pw"));
+	user.setName(request.getParameter("name"));
+	user.setEmail(request.getParameter("email"));
+	
+	
+	//UserBean user = new UserBean(id, pw, name, email);
+		//request.setAttribute("user", user);
+		
+		
+		
+		/*
+		request.setAttribute("user_id", id);
+		request.setAttribute("user_pw", pw);
+		request.setAttribute("user_name", name);
+		request.setAttribute("user_email", email);
+		*/
+%>
+     
+<jsp:forward page = "bean_use.jsp" />
+
+
+
+
+
+
+
+
+//bean_use.jsp
+<%@page import="kr.co.jspbasic.user.UserBean"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+
+<jsp:useBean id = "user" class = "kr.co.jspbasic.user.UserBean" scope = "request" />    <!--이게 3번답-->
+<%
+
+	//UserBean user = (UserBean)request.getAttribute("user"); //여기까지가 2번답
+%>    
+    
+
+
+# 아이디: <%= user.getId() %> <br/>
+# 비밀번호: <%= user.getPw() %> <br/>
+# 이름: <%= user.getName() %> <br/>
+# 이메일: <%= user.getEmail() %> <br/>
+
+<%-- 
+# 아이디: <%= request.getAttribute("user_id") %> <br/>
+# 비밀번호: <%= request.getAttribute("user_pw") %> <br/>
+# 이름: <%= request.getAttribute("user_name") %> <br/>
+# 이메일: <%= request.getAttribute("user_email") %> <br/>
+--%>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+######################################################################################################
+개념정리_jsp 액션태그(setProperty, getProperty)
+
+
+- JSP 액션태그로 setter와 getter메서드를 사용할 수 있습니다.
+1. setter 사용 방법
+ex) <jsp:setProperty name="자바빈 id" property="자바빈 클래스의 변수명" value="할당할 값" />
+--a. name: 값을 변경할 자바빈 객체의 이름을 지정합니다. useBean태그에서 id속성에 지정한 값을 그대로 사용합니다.
+--b. property(재산): 값을 지정할 프로퍼티의 이름을 지정합니다. 자바빈 클래스의 변수명을 적어줍니다.
+	#빈에 있는 멤버변수를 filed라고 안부르고 property라고 부른다
+--c. value: 프로퍼티의 값을 지정합니다. 표현식이나 EL도 사용할 수 있습니다.
+
+2. getter 사용 방법
+ex)  <jsp:getProperty  name="자바빈  id"  property="변수명" />
+--a. name: useBean태그에서 id속성에 지정한 값을 사용합니다.
+--b. property: 출력할 프로퍼티의 이름을 지정합니다. 자바빈 클래스의 변수명을 적습니다.
+
+
+* Servlet 특징
+1. 동적 웹어플리케이션 컴포넌트
+2. .java 확장자
+3. 클라이언트의 요청에 동적으로 작동하고, 응답은 html을 이용.
+4. java thread를 이용하여 동작.
+5. MVC패턴에서 Controller로 이용됨.
+
+######################################################################################################
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+######################################################################################################
+예제40)  jsp action tag를 이용해서 요청파라미터에 대해 각각 setter, getter 적용하기1
+
+JavaBean 폴더 생성
+bean_make.jsp 파일사용
+bean_use.jsp 파일사용 
+
+0)위의 문제의 결과로 나온 파일 make에 String변수 id만 만들고 value를 클라이언트가 url에 넣은
+	요청파라미터로 넣어주어라
+
+1)jsp 액션태그를 이용하여 property중 id만 setter기능을 사용하라
+	-값을넣는거니까 make파일만 수정하면됨
+
+
+2)jsp 액션태그를 이용하여  property중 id만 getter 기능을 사용하라출력할때 getId()등으로 접근하지 말것
+	-값을 받는거니까 use파일만 수정하면됨
+
+
+######################################################################################################
+
+​
+
+답:
+
+//bean_make.jsp
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+
+<%@
+	page import = "kr.co.jspbasic.user.UserBean"
+%>
+    
+<%
+	String id = request.getParameter("id");
+
+%>    
+    
+<jsp:useBean id = "user" class = "kr.co.jspbasic.user.UserBean" scope = "request" />
+<jsp:setProperty name = "user" property = "id" value = "<%= id %>" />
+
+<%
+	
+	//user.setId(request.getParameter("id"));
+	user.setPw(request.getParameter("pw"));
+	user.setName(request.getParameter("name"));
+	user.setEmail(request.getParameter("email"));
+	
+	
+	//UserBean user = new UserBean(id, pw, name, email);
+		//request.setAttribute("user", user);
+		
+		
+		
+		/*
+		request.setAttribute("user_id", id);
+		request.setAttribute("user_pw", pw);
+		request.setAttribute("user_name", name);
+		request.setAttribute("user_email", email);
+		*/
+%>
+     
+<jsp:forward page = "bean_use.jsp" />
+
+
+
+
+
+
+
+//bean_use.jsp
+<%@page import="kr.co.jspbasic.user.UserBean"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+
+<jsp:useBean id = "user" class = "kr.co.jspbasic.user.UserBean" scope = "request" />    
+<%
+
+	//UserBean user = (UserBean)request.getAttribute("user");
+%>    
+    
+
+
+# 아이디: <jsp:getProperty name = "user" property = "id" /> <br/>
+# 비밀번호: <%= user.getPw() %> <br/>
+# 이름: <%= user.getName() %> <br/>
+# 이메일: <%= user.getEmail() %> <br/>
+
+<%-- 
+# 아이디: <%= request.getAttribute("user_id") %> <br/>
+# 비밀번호: <%= request.getAttribute("user_pw") %> <br/>
+# 이름: <%= request.getAttribute("user_name") %> <br/>
+# 이메일: <%= request.getAttribute("user_email") %> <br/>
+--%>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+######################################################################################################
+예제41)  jsp action tag를 이용해서 요청파라미터에 대해 각각 setter, getter 적용하기2
+
+JavaBean 폴더 
+bean_form.jsp 파일생성
+bean_make.jsp 파일사용
+bean_use.jsp 파일사용
+
+구동원리 : form -> make -> ues
+
+1)위에서 제시한 구동원리 개념이 되도록 설계하라
+	form의 ui부분만은 답을 보고 만들든지 복사하든지 해라 중요한게 아니다.
+	-조건: make 및 use에서  모든 setter역할과 getter 역할은 java action tag로 수행하라.
+	
+
+######################################################################################################
+
+​
+
+답:
+
+
+
+//bean_form.jsp 
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+<form action="bean_make.jsp" method="post">
+	<div align="center">
+	<table border="1">
+			<tr>
+				<td>아이디</td>
+				<td><input type="text" name="id" size="10"></td>
+				<td>비밀번호</td>
+				<td><input type="password" name="pw" size="10"></td>
+			</tr>
+			<tr>
+				<td>이름</td>
+				<td><input type="text" name="name" size="10"></td>
+				<td>이메일</td>
+				<td><input type="text" name="email" size="10"></td>
+			</tr>
+			<tr>
+				<td colspan="4" align="center"><input type="submit" value="회원가입"></td>
+			</tr>			
+		</table>
+		</div>
+</form>
+</body>
+</html>
+
+
+
+//bean_make.jsp 
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+
+<%@ page import = "kr.co.jspbasic.user.UserBean"%>
+
+<% 
+	request.setCharacterEncoding("utf-8");
+%>    
+    
+<%
+	String id = request.getParameter("id");
+	String pw = request.getParameter("pw");
+	String name = request.getParameter("name");
+	String email = request.getParameter("email");
+%>    
+    
+<jsp:useBean id = "user" class = "kr.co.jspbasic.user.UserBean" scope = "request" />
+<jsp:setProperty name = "user" property = "id" value = "<%= id %>" />
+<jsp:setProperty name = "user" property = "pw" value = "<%= pw %>" />
+<jsp:setProperty name = "user" property = "name" value = "<%= name %>" />
+<jsp:setProperty name = "user" property = "email" value = "<%= email %>" />
+     
+<jsp:forward page = "bean_use.jsp" />
+
+
+
+
+//bean_use.jsp
+<%@page import="kr.co.jspbasic.user.UserBean"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+
+<jsp:useBean id = "user" class = "kr.co.jspbasic.user.UserBean" scope = "request" />    
+
+# 아이디: <jsp:getProperty name = "user" property = "id" /> <br/>
+# 비밀번호: <jsp:getProperty name = "user" property = "pw" /> <br/>
+# 이름: <jsp:getProperty name = "user" property = "name" /> <br/>
+# 이메일: <jsp:getProperty name = "user" property = "email" /> <br/>
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+######################################################################################################
+예제42)  jsp action tag 하나를 이용해서 모든 요청파라미터에 대해 setter적용하기
+
+JavaBean 폴더 
+bean_form.jsp 파일생성
+bean_make.jsp 파일사용
+bean_use.jsp 파일사용
+
+구동원리 : form -> make -> ues
+
+0)41번에서 푼 결과를보면 String참조변수로 id, pw, name, email을 만들고 value로 request.setParameter("id") 같은
+	형식으로 값을 다 넣어준 뒤 setter기능을 jsp action tag로 넣었다.
+
+1)이렇게 String참조변수를 만드는 행위와 request를 이용해 파라미터를 불러오는 행위, setProperty를 4번이나 하는 행위를 다없애고
+	setProperty 한번만에 모든 과정을 통합하라
+******bean_make.jsp만 수정하면됨
+
+	-조건1) make의 id,pw,name,email 모두 주석처리 또는 삭제하라
+	-조건2) make의 액션태그인 setProperty를 주석또는 삭제처리 후 문제를 풀어라
+		-setProperty를 한번만 사용해라(setProperty에서는 value를 써야하지만 한번만사용하려면 안써야한다_물론전제조건을 잘지켜야함)
+					-전제조건 이미 지켜져있긴 함
+	<!-- 
+	파라미터의 이름과 자바빈 클래스의 멤버변수명이 일치할경우 액션태그 setProperty의 속성인 
+	property의 값을 *로 지정하면 자동으로 파라미터 값을 읽어서 자바빈 클래스 변수에 저장합니다.
+ 	-->
+
+######################################################################################################
+
+​
+
+
+
+답:
+
+
+
+
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+
+<%@ page import = "kr.co.jspbasic.user.UserBean"%>
+
+<% 
+	request.setCharacterEncoding("utf-8");
+%>    
+    
+<%
+	/*
+	String id = request.getParameter("id");
+	String pw = request.getParameter("pw");
+	String name = request.getParameter("name");
+	String email = request.getParameter("email");
+	*/
+%>    
+    
+<jsp:useBean id = "user" class = "kr.co.jspbasic.user.UserBean" scope = "request" />
+
+<!-- 
+	파라미터의 이름과 자바빈 클래스의 멤버변수명이 일치할경우 액션태그 setProperty의 속성인 
+	property의 값을 *로 지정하면 자동으로 파라미터 값을 읽어서 자바빈 클래스 변수에 저장합니다.
+ -->
+ 
+<jsp:setProperty name = "user" property = "*" />
+
+<%--   
+<jsp:setProperty name = "user" property = "id" value = "<%= id %>" />
+<jsp:setProperty name = "user" property = "pw" value = "<%= pw %>" />
+<jsp:setProperty name = "user" property = "name" value = "<%= name %>" />
+<jsp:setProperty name = "user" property = "email" value = "<%= email %>" />
+--%>
+
+<jsp:forward page = "bean_use.jsp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+######################################################################################################
+예제43) 점수관리 프로그램을 통한 javabean  실습
+
+kr.co.jspbasic.scan 패키지 생성
+ScoreBean.java 클래스 생성
+
+
+JavaBean 폴더 
+score_form.jsp 파일생성
+score_bean_make.jsp 파일생성
+score_bean_make.jsp 파일생성
+score_bean_use.jsp 파일생성
+
+
+ui나 코드실행시 입력 및 결과를 보려면 workspace의 JSPBasic/Webcontent/JavaBean/score_form.jsp 파일을 실행시킨후 푸시오
+
+-ScoreBean의 setter 및 getter는 모두 자동으로 만들고 절대 수정하지마시오.
+-ScoreBean 타입으로 객체를 만들경우 참조변수명은 score 또는 user로 하시오.
+
+
+######################################################################################################
+
+​
+
+
+
+답:
+
+
+
+
+//ScoreBean
+package kr.co.jspbasic.user;
+
+public class ScoreBean {
+	/*
+	 # 여기에는 국어점수(kor:int), 영어점수(eng:int),
+	   수학점수(math:int), 총점(total:int), 평균(average:double)
+	   총 5개의 데이터를 관리하는 자바빈 클래스를 구성하세요.
+	 */
+	
+	int kor;
+	int eng;
+	int math;
+	int tot;
+	double avg;
+	
+	public ScoreBean() {}
+	public ScoreBean(int kor, int eng, int math) {
+		this.kor = kor;
+		this.eng =  eng;
+		this.math = math;
+		this.tot = kor+eng+math;
+		this.avg = tot / 3.0;
+	}
+	public int getKor() {
+		return kor;
+	}
+	public void setKor(int kor) {
+		this.kor = kor;
+	}
+	public int getEng() {
+		return eng;
+	}
+	public void setEng(int eng) {
+		this.eng = eng;
+	}
+	public int getMath() {
+		return math;
+	}
+	public void setMath(int math) {
+		this.math = math;
+	}
+	public int getTot() {
+		return tot;
+	}
+	public void setTot(int total) {
+		this.tot = total;
+	}
+	public double getAvg() {
+		return avg;
+	}
+	public void setAvg(double avg) {
+		this.avg = Math.round(avg*100) / 100.0;
+	}
+	
+	
+	
+}
+
+
+//score_form.jsp
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+
+<form action="score_bean_make.jsp">
+	<%--
+		국어, 영어, 수학점수를 입력받아 전송하는
+		폼을 작성하세요.
+	 --%>
+	# 국어: <input type="text" name="kor" size="5"/>&nbsp;
+	# 영어: <input type="text" name="eng" size="5"/>&nbsp;
+	# 수학: <input type="text" name="math" size="5"/>&nbsp;
+	<input type="submit" value="확인"/>
+</form>
+
+</body>
+</html>
+
+
+
+
+//score_bean_make.jsp
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+
+<jsp:useBean id = "user" class = "kr.co.jspbasic.user.ScoreBean" scope = "request" />
+<jsp:setProperty name = "user" property = "*" />
+
+<%
+	int tot = user.getKor() + user.getEng() + user.getMath();
+	double avg = tot / 3.0;
+%>
+
+
+<jsp:setProperty name = "user" property = "tot" value = "<%= tot %>" />
+<jsp:setProperty name = "user" property = "avg" value = "<%= avg %>" />
+ 
+ 
+<%--
+	
+	액션태그를 사용하여 ScoreBean의 객체를 request범위로 생성하시고
+	setProperty를 사용하여 객체 내부 데이터에 파라미터데이터를 셋팅한 뒤
+	파라미터데이터 3개와 총점, 평균을 구하여 5개를 모두 객체에 포장하여
+	score_bean_use.jsp로 전송(포워딩)하세요.
+--%>
+
+<jsp:forward page = "score_bean_use.jsp" />
+
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+//score_bean_use.jsp
+<%@page import="kr.co.jspbasic.user.UserBean"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+
+<jsp:useBean id = "user" class = "kr.co.jspbasic.user.UserBean" scope = "request" />    
+
+# 아이디: <jsp:getProperty name = "user" property = "id" /> <br/>
+# 비밀번호: <jsp:getProperty name = "user" property = "pw" /> <br/>
+# 이름: <jsp:getProperty name = "user" property = "name" /> <br/>
+# 이메일: <jsp:getProperty name = "user" property = "email" /> <br/>
+
