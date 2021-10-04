@@ -129,3 +129,9 @@ SELECT * FROM MEMBER;
 
 ROLLBACK; #이거 후 SELECT 하면 나, 다 사라짐 트랜잭션 완료
 SELECT * FROM MEMBER;
+
+#테이블 객체 삭제
+
+
+
+

@@ -124,4 +124,9 @@ SELECT * FROM jsp_practice2.member;
 
 DROP TABLE member;
 
+TRUNCATE TABLE jsp_practice2.member;
 
+
+ALTER TABLE jsp_practice2.member ADD address varchar(10);
+
+ALTER TABLE jsp_practice2.member DROP COLUMN email;

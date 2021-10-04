@@ -1,6 +1,0 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8"
-    pageEncoding="UTF-8"%>
-
-<hr/>
-<a href = "res_basic01.jsp">처음으로 돌아려면 여기를 클릭</a>
-
