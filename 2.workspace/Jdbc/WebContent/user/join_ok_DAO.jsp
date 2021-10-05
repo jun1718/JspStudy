@@ -4,8 +4,11 @@
 <%@ page import = "java.sql.*" %>    
     
 <%
+
 	//1.폼데이터 처리
 	request.setCharacterEncoding("utf-8");
+	/*
+	
 
 	String name = request.getParameter("name");
 	String id = request.getParameter("id");
@@ -15,9 +18,11 @@
 	String phone3 = request.getParameter("phone3");
 	String gender = request.getParameter("gender");
 	
+	*/
+	
 	
 	//2.JDBC로직 작성
-	
+	/*
 	String url = "jdbc:mysql://localhost:3306/jsp_practice";
 	String uid = "jsp";
 	String upw = "jsp";
@@ -58,18 +63,15 @@
 			e.printStackTrace();
 		}	
 	}
+	*/
 %>    
     
-<!DOCTYPE html>
-<html>
-<head>
-<meta charset="UTF-8">
-<title>Insert title here</title>
-</head>
-<body>
+    
+<jsp:useBean id="users" class="kr.co.koo.jdbc.user.model.UserVo" />
+<jsp:setProperty name = "users" property = "*" />
 
-
-
-
-</body>
-</html>
+<%
+	
+%>
+    
+    

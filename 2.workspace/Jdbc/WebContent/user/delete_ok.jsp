@@ -22,6 +22,7 @@
 
 		if(rn == 1){
 			out.print("<h3>삭제에 성공했습니다.</h3>");
+			session.invalidate();
 			out.print("<a href = 'login_form.jsp'>로그인페이지로 가기</a>");
 		} else{
 			out.print("<h3>삭제에 실패했습니다.</h3>");

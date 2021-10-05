@@ -10,5 +10,6 @@ CREATE TABLE users(
     gender char(10)
 );
 
-
 SELECT * FROM jsp_practice2.users;
+
+SELECT * FROM jsp_practice.member;
