@@ -1,24 +1,10 @@
 package kr.co.koo.jdbc.user.model;
 
-public class UserVo {
-	/*
-	 * 1.vo클래스는 db컬럼들을 클래스 필드로 선언
-	 * 2.vo클래스의 변수들은 은닉을 통해 데이터를 관리
-	 * 3.db테이블의 컬럼과 1:1로 매칭되는변수를 선언해야함
-	 */
+public class UserVO {
+	private String name, id, pw, phone1, phone2, phone3, gender;
 	
-	private String name;
-	private String id;
-	private String pw;
-	private String phone1;
-	private String phone2;
-	private String phone3;
-	private String gender;
-	
-	//VO클래스는 기본생성자와 모든 필드를 초기화하는 생성자를 선언
-	
-	public UserVo(){}
-	public UserVo(String name, String id, String pw, String phone1, String phone2, String phone3, String gender) {
+	public UserVO(){}
+	public UserVO(String name, String id, String pw, String phone1, String phone2, String phone3, String gender) {
 		super();
 		this.name = name;
 		this.id = id;
@@ -28,6 +14,8 @@ public class UserVo {
 		this.phone3 = phone3;
 		this.gender = gender;
 	}
+
+
 
 
 	public String getName() {
@@ -85,6 +73,7 @@ public class UserVo {
 	public void setGender(String gender) {
 		this.gender = gender;
 	}
+	
 	
 	
 }

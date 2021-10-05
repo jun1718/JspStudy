@@ -8,7 +8,7 @@
 </head>
 <body>
 	
-	<form action="join_ok.jsp" method="post">
+	<form action="join_ok_DAO.jsp" method="post">
 		이름: <input type="text" name="name" size="10"><br>
 		아이디: <input type="text" name="id" size="10"><br>
 		비밀번호: <input type="password" name="pw" size="10"><br>
@@ -30,6 +30,7 @@
 	</form>
 	
 	<a href = "login_form.jsp">로그인 페이지로</a>
+	<a href = "show_all_users.jsp">모든 회원정보 보기</a>
 
 </body>
 </html>

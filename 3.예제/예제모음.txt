@@ -13144,3 +13144,1040 @@ logout.jsp
 	session.invalidate();
 	response.sendRedirect("login_form.jsp");
 %>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+21.10.06_15회차(13강) 
+=======================================================================================================
+*preparedStatement, MVCmodel(VO,DAO)_insert,select,delete
+=======================================================================================================
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+######################################################################################################
+개념정리_PreparedStatement
+
+
+* Statement 객체를 대신하는 PreparedStatement 객체
+- Statement 객체와 PreparedStatement객체는 쿼리문을 실행하는 동일한 기능을 제공합니다.
+- 그런데 PreparedStatement 객체를 사용하는 이유는  이  객체가  값  변환을  자동으로  해주는  기능을  제공하고,  간결한  코드를  만들  수  있기 때문입니다.
+- Statement객체는 지정할 값이 많아질 경우 따옴표가 복잡하게 얽히기 때문에 코드 작성에서 오류가 발생할 수도 있고, 코드 수정시       에도 어려움이 발생합니다.
+- 그러나 PreparedStatement 객체는 값을 지정할 때 값 부분을 물음표(?)로 처리하기 때문에 간단히 값을 지정할 수 있습니다. 이 때 첫번째 물음표의 인덱스는 1이며, 이후 물음표의 인덱스는 나오는 순서대로 인덱스 값이 1씩 증가합니다.
+
+
+######################################################################################################
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+######################################################################################################
+예제57)PreparedStatement 
+
+
+webcontent아래에 파일생성
+pstmt_basic.jsp 생성
+
+1)id, pw, name, email순으로 아래 value값 을삽입해라
+	-단 statement 클래스말고 이것을 상속받은 클래스를 이용해서 삽입해라
+	-jsp_practice db객체의 member 테이블을 가지고 문제를 해결하라
+
+chicken1234
+ccc1234
+닭튀김
+chicken1234@naver.com
+
+	/*
+			- pstmt 객체는 Connection이 제공하는 prepareStatement()라는
+			메서드를 호출합니다. 매개값에 sql을 전달합니다.
+			stmt: 생성시 매개값없음
+			pstmt: 생성시 불완전한 매개값전달
+		*/
+	/*
+			-pstmt 객체를 생성했다면 sql문의 ?값들을 채워줌
+			-?는 첫번째 물음표부터 1번의 인덱스값을 가지며 순차적으로 인덱스가 1씩 증가함
+			-db테이블의 컬럼데이터타입에 따라 setString(), setInt()등의 메서드를 사용하여
+			?를 채움
+		*/
+	/*
+			-?값을 모두 입력했다면 sql문의 종류에 따라 executeQuery(), executeUpdate
+					()를 호룰
+			stmt : 실행명령시 매개값으로 쿼리문전달
+			pstmt: 실행명령시 매개값 전달 x
+			
+		*/
+######################################################################################################
+
+
+답:
+
+
+//pstmt_basic.jsp
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+    
+<%@ page import = "java.sql.*" %>    
+<%
+	String url = "jdbc:mysql://localhost:3306/jsp_practice";
+	String uid = "jsp";
+	String upw = "jsp";
+	
+	Connection conn = null;
+	PreparedStatement pstmt = null;
+
+	String sql = "INSERT INTO jsp_practice.member VALUES (?, ?, ?, ?)";
+	
+	try{
+		Class.forName("com.mysql.jdbc.Driver");
+		conn = DriverManager.getConnection(url, uid, upw);
+		
+		/*
+			- pstmt 객체는 Connection이 제공하는 prepareStatement()라는
+			메서드를 호출합니다. 매개값에 sql을 전달합니다.
+			stmt: 생성시 매개값없음
+			pstmt: 생성시 불완전한 매개값전달
+		*/
+		
+		pstmt = conn.prepareStatement(sql);
+		
+		/*
+			-pstmt 객체를 생성했다면 sql문의 ?값들을 채워줌
+			-?는 첫번째 물음표부터 1번의 인덱스값을 가지며 순차적으로 인덱스가 1씩 증가함
+			-db테이블의 컬럼데이터타입에 따라 setString(), setInt()등의 메서드를 사용하여
+			?를 채움
+		*/
+		
+		pstmt.setString(1, "보라돌이");
+		pstmt.setString(2, "보라1234");
+		pstmt.setString(3, "보라귀");
+		pstmt.setString(4, "보ㅓ라나라1234@naver.com");
+		
+		/*
+			-?값을 모두 입력했다면 sql문의 종류에 따라 executeQuery(), executeUpdate
+					()를 호룰
+			stmt : 실행명령시 매개값으로 쿼리문전달
+			pstmt: 실행명령시 매개값 전달 x
+			
+		*/
+		
+		int rn = pstmt.executeUpdate();
+		
+		if(rn==1){
+			System.out.print("입력 성공!");
+		} else{
+			System.out.print("입력 실패!");
+		}
+		
+		
+	}catch(Exception e){
+		e.printStackTrace();
+	} finally{
+		try{
+			conn.close();
+			pstmt.close();
+		}catch(Exception e){
+			e.printStackTrace();
+		} 	
+	}
+%>
+    
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+하이
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+######################################################################################################
+개념정리_MVC 패턴개념
+
+
+* MVC 패턴에서의 Model
+
+1. DAO 클래스(Data Access Object)
+- 데이터베이스에 접속해서 데이터의 추가, 삭제, 수정 등의 작업을 하는 클래스입니다.
+- 일반적으로  JSP 혹은 Servlet에서 위의 로직을 함께 기술할 수도 있지만, 유지보수 및 코드의 모듈화를 위해 
+별도의 DAO 클래스를 만들어 사용합니다.
+- 보통 한 개의 테이블마다 한 개의 DAO 클래스를 작성합니다.
+- DAO 클래스는 테이블로부터 데이터를 읽어와 자바 객체로 변환하거나 자바 객체의 값을 테이블에 저장합니다.
+- 따라서 DAO를 구현하면 테이블의 컬럼과 매핑되는 값을 갖는 자바빈 클래스를 항상 작성해야 합니다. 이 자바빈 클래스를 VO클래스라 부릅니다.
+- DAO 클래스는 front-end 개발과 back-end 개발을 나누어 할 수 있게 도와줍니다.
+
+2. VO 클래스(Value Object) / DTO 클래스(Data Transfer Object)
+- DAO 클래스를 이용하여 데이터베이스에서 데이터를 관리할 때 데이터를 일반적인 변수에 할당하여 작업할 수도 있지만,
+ 별도의 VO 클래스를 작성하여 데이터베이스와 관련된 변수들의 모음역할을 합니다.
+- VO클래스는 자바빈 클래스로 생성합니다.
+
+
+
+
+
+######################################################################################################
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+######################################################################################################
+예제58)VO(javabean)클래스 만들기
+
+패키지 : kr.co.koo.jdbc.user.model
+class :
+	UserVo.java
+
+
+1)UserVo클래스를 javabean클래스로 만들어라
+	-db의 필드와 똑같이 만들어야하는데 db는 jsp_practice이고 table은 users이다.
+
+
+
+
+######################################################################################################
+
+
+답:
+
+
+
+1)UserVo클래스를 javabean클래스로 만들어라
+	-db의 필드와 똑같이 만들어야하는데 db는 jsp_practice이고 table은 users이다.
+
+package kr.co.koo.jdbc.user.model;
+
+public class UserVo {
+	/*
+	 * 1.vo클래스는 db컬럼들을 클래스 필드로 선언
+	 * 2.vo클래스의 변수들은 은닉을 통해 데이터를 관리
+	 * 3.db테이블의 컬럼과 1:1로 매칭되는변수를 선언해야함
+	 */
+	
+	private String name;
+	private String id;
+	private String pw;
+	private String phone1;
+	private String phone2;
+	private String phone3;
+	private String gender;
+	
+	//VO클래스는 기본생성자와 모든 필드를 초기화하는 생성자를 선언
+	
+	public UserVo(){}
+	public UserVo(String name, String id, String pw, String phone1, String phone2, String phone3, String gender) {
+		super();
+		this.name = name;
+		this.id = id;
+		this.pw = pw;
+		this.phone1 = phone1;
+		this.phone2 = phone2;
+		this.phone3 = phone3;
+		this.gender = gender;
+	}
+
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public String getId() {
+		return id;
+	}
+
+	public void setId(String id) {
+		this.id = id;
+	}
+
+	public String getPw() {
+		return pw;
+	}
+
+	public void setPw(String pw) {
+		this.pw = pw;
+	}
+
+	public String getPhone1() {
+		return phone1;
+	}
+
+	public void setPhone1(String phone1) {
+		this.phone1 = phone1;
+	}
+
+	public String getPhone2() {
+		return phone2;
+	}
+
+	public void setPhone2(String phone2) {
+		this.phone2 = phone2;
+	}
+
+	public String getPhone3() {
+		return phone3;
+	}
+
+	public void setPhone3(String phone3) {
+		this.phone3 = phone3;
+	}
+
+	public String getGender() {
+		return gender;
+	}
+
+	public void setGender(String gender) {
+		this.gender = gender;
+	}
+	
+	
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+######################################################################################################
+예제59)DAO로 jdbc를 모듈화하고 VO를 이용하여 매개변수를 간편하게 jdbc로 보내기
+
+패키지 : kr.co.koo.jdbc.user.model
+class :
+	UserVo.java
+	UserDAO.java
+
+jsp
+	-join_ok_DAO.jsp를 만들고 join_ok.jsp를 복사
+
+1)DAO 클래스를 만들고 VO와 함께 활용하여 MVC패턴 아주 간단한단계를 실시하라
+	(mvc model 1 architecture)
+-db table 이름 : users
+-vo 객체 이름 : users
+-dao에서 int값을 반환하며 insert sql을 db에 실행하게 할 메서드명: join() 
+
+-테스트하기전에 join_form.jsp에서 form을 join_ok.jsp가 아니라 join_ok_DAO.jsp로 변경해야함 
+-return이 1이면 join_success.jsp로 보내고 그외면 join_form.jsp로 보내라(회원가입이 제대로 안됐다는 뜻이니까)
+
+######################################################################################################
+
+
+
+
+
+
+
+답:
+
+
+
+
+
+
+
+//UserDAO.java
+package kr.co.koo.jdbc.user.model;
+
+import java.sql.*;
+import java.util.*;
+
+//DAO클래스는 DB작업을 전담처리함
+public class UserDAO {
+	private String url = "jdbc:mysql://localhost:3306/jsp_practice";
+	private String uid = "jsp";
+	private String upw = "jsp";
+	
+	
+	Connection conn = null;
+	PreparedStatement pstmt = null;
+	
+	//싱글톤패턴 클래스생성
+	//1.클래스 외부에서 객체를 생성할수 없도록 생성자에 private제한을 붙임
+	
+	private UserDAO() {
+		try {
+			Class.forName("com.mysql.jdbc.Driver");
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+	}
+	
+	//2.자신의 클래스 내부에서 스스로의 객체를 1개 생성함
+	private static UserDAO dao = new UserDAO();
+	
+	//3.외부에서 객체 생성을 요구할시 공개된 메서드를 통해 미리 만들어둔 단 하나의 객체를 리턴함
+	
+	public static UserDAO getInstance() {
+		if(dao == null) {
+			dao = new UserDAO();
+		}
+		return dao;
+	}
+	
+	//UserDAO에서는 회원 관리에 필요한 db연동 로직들을 메서드로 나열하여 작성
+	
+	//DB에 회원가입 데이터를 insert하는 메서드 선언
+	public int join(UserVo users){
+		String sql = "INSERT INTO users VALUES (?,?,?,?,?,?,?)";
+		Connection conn = null;
+		PreparedStatement pstmt = null;
+		int rn = 0;
+		try{
+			conn = DriverManager.getConnection(url, uid, upw);
+			pstmt = conn.prepareStatement(sql);
+			
+			pstmt.setString(1,  users.getName());
+			pstmt.setString(2,  users.getId());
+			pstmt.setString(3,  users.getPw());
+			pstmt.setString(4,  users.getPhone1());
+			pstmt.setString(5,  users.getPhone2());
+			pstmt.setString(6,  users.getPhone3());
+			pstmt.setString(7,  users.getGender());
+
+			rn = pstmt.executeUpdate();
+
+		} catch(Exception e) {
+			e.printStackTrace();	
+		} finally{
+			try{
+				conn.close();
+				pstmt.close();
+				
+			} catch(Exception e) {
+				e.printStackTrace();	
+			}
+		}
+
+		return rn;
+	}
+	
+}
+
+
+
+
+
+
+
+
+
+
+
+
+//join_ok_DAO.jsp
+<%@page import="kr.co.koo.jdbc.user.model.UserDAO"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+
+<%@ page import = "java.sql.*" %>    
+    
+<%
+
+	//1.폼데이터 처리
+	request.setCharacterEncoding("utf-8");
+	/*
+	
+
+	String name = request.getParameter("name");
+	String id = request.getParameter("id");
+	String pw = request.getParameter("pw");
+	String phone1 = request.getParameter("phone1");
+	String phone2 = request.getParameter("phone2");
+	String phone3 = request.getParameter("phone3");
+	String gender = request.getParameter("gender");
+	
+	*/
+	
+	
+	//2.JDBC로직 작성
+	/*
+	String url = "jdbc:mysql://localhost:3306/jsp_practice";
+	String uid = "jsp";
+	String upw = "jsp";
+	
+	Connection conn = null;
+	Statement stmt = null;
+	
+	
+	String sql = "INSERT INTO jsp_practice.users" + 
+	" VALUES('"+name+"', '"+id+"', '"+pw+"', '"+phone1+"', '"+phone2+"', '"+phone3+"','"+gender+"');";
+	
+	
+	System.out.println(sql);
+	
+
+	try {
+		Class.forName("com.mysql.jdbc.Driver");
+		
+		conn = DriverManager.getConnection(url, uid, upw);
+		stmt = conn.createStatement();
+		int rn = stmt.executeUpdate(sql);
+		
+		if(rn ==1){
+			session.setAttribute("user_name", name);
+			response.sendRedirect("join_success.jsp");
+		} else{
+			response.sendRedirect("join_form.jsp");
+		}
+		
+	} catch (Exception e) {
+		e.printStackTrace();
+	} finally {
+
+		try {
+			conn.close();
+			stmt.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}	
+	}
+	*/
+%>    
+    
+    
+<jsp:useBean id="users" class="kr.co.koo.jdbc.user.model.UserVo" />
+<jsp:setProperty name = "users" property = "*" />
+
+<%
+	UserDAO dao = UserDAO.getInstance();
+	int rn = dao.join(users);
+	if(rn ==1){
+		session.setAttribute("user_name", users.getName());
+		response.sendRedirect("join_success.jsp");
+	} else{
+		response.sendRedirect("join_form.jsp");
+	}
+%>
+    
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+######################################################################################################
+예제60)DAO로 jdbc를 모듈화하고 VO를 이용하여 매개변수를 간편하게 jdbc로 보내기
+
+패키지 : kr.co.koo.jdbc.user.model
+class :
+	UserVo.java
+	UserDAO.java
+
+<jsp(폴더 user 이용)>
+	-join_form.jsp에서 <a href = "show_all_users.jsp">모든 회원정보 보기</a> 링크 만들기
+	-show_all_users.jsp 생성
+
+1)클래스 UserDAO에 코드를 추가하여 show_all_users.jsp에서 모든 사용자의 정보를 출력하게하시오
+
+
+
+
+<jsp>
+	-기존 delete_ok 이용
+
+2)MVC model 을 이용해서 현재 로그인된 사용자의 삭제에 관한 jdbc 로직은 UserDAO.java에서 
+	처리하게하고 해당 기능을 구현은 delete_ok.jsp에서하라
+	-이때 기존 delete_ok.jsp에 있던 로직은 모두 삭제 혹은 주석처리
+	-DAO에서 삭제를 올바르게 완료했다면 delete_ok.jsp에서 login_form.jsp로 보내버리고
+		에러가나서 삭제가 실패했다면 login_welcome.jsp로 보내라
+	-DAO 메서드명: userDelete()
+	-당연히 삭제시에는 해당 회원의 session을 비워주는게 맞고 그런 처리는 DAO가 아닌 delete_ok에서 하는것이다
+
+######################################################################################################
+
+
+
+
+
+
+
+답:
+
+
+
+
+
+//UserDAO.java
+
+
+package kr.co.koo.jdbc.user.model;
+
+import java.sql.*;
+import java.util.*;
+
+//DAO클래스는 DB작업을 전담처리함
+package kr.co.koo.jdbc.user.model;
+
+import java.sql.*;
+import java.util.*;
+
+//DAO클래스는 DB작업을 전담처리함
+public class UserDAO {
+	private String url = "jdbc:mysql://localhost:3306/jsp_practice";
+	private String uid = "jsp";
+	private String upw = "jsp";
+	
+	
+	Connection conn = null;
+	PreparedStatement pstmt = null;
+	ResultSet rs = null;
+	//싱글톤패턴 클래스생성
+	//1.클래스 외부에서 객체를 생성할수 없도록 생성자에 private제한을 붙임
+	
+	private UserDAO() {
+		try {
+			Class.forName("com.mysql.jdbc.Driver");
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+	}
+	
+	//2.자신의 클래스 내부에서 스스로의 객체를 1개 생성함
+	private static UserDAO dao = new UserDAO();
+	
+	//3.외부에서 객체 생성을 요구할시 공개된 메서드를 통해 미리 만들어둔 단 하나의 객체를 리턴함
+	
+	public static UserDAO getInstance() {
+		if(dao == null) {
+			dao = new UserDAO();
+		}
+		return dao;
+	}
+	
+	//UserDAO에서는 회원 관리에 필요한 db연동 로직들을 메서드로 나열하여 작성
+	
+	//DB에 회원가입 데이터를 insert하는 메서드 선언
+	public int join(UserVo users){
+		String sql = "INSERT INTO users VALUES (?,?,?,?,?,?,?)";
+		Connection conn = null;
+		PreparedStatement pstmt = null;
+		int rn = 0;
+		try{
+			conn = DriverManager.getConnection(url, uid, upw);
+			pstmt = conn.prepareStatement(sql);
+			
+			pstmt.setString(1,  users.getName());
+			pstmt.setString(2,  users.getId());
+			pstmt.setString(3,  users.getPw());
+			pstmt.setString(4,  users.getPhone1());
+			pstmt.setString(5,  users.getPhone2());
+			pstmt.setString(6,  users.getPhone3());
+			pstmt.setString(7,  users.getGender());
+
+			rn = pstmt.executeUpdate();
+
+		} catch(Exception e) {
+			e.printStackTrace();	
+		} finally{
+			try{
+				conn.close();
+				pstmt.close();
+				
+			} catch(Exception e) {
+				e.printStackTrace();	
+			}
+		}
+
+		return rn;
+	}
+	
+	
+	//DB로부터 모든 회원정보를 가져오는 메서드 선언
+	public List<UserVo> userSelectAll(){
+		
+		List<UserVo> userList = new ArrayList<>();
+		
+		String sql = "SELECT * FROM users";
+		
+		Connection conn = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		UserVo uv = new UserVo();
+		
+		try {
+			
+			conn = DriverManager.getConnection(url,uid,upw);
+			pstmt = conn.prepareStatement(sql);
+			rs = pstmt.executeQuery();
+			
+	
+			while(rs.next()) {
+				UserVo users = new UserVo(
+						rs.getString("name"),
+						rs.getString("id"),
+						rs.getString("pw"),
+						rs.getString("phone1"),
+						rs.getString("phone2"),
+						rs.getString("phone3"),
+						rs.getString("gender") );
+				
+				userList.add(users);
+			}
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				conn.close();
+				pstmt.close();
+				rs.close();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		
+		return userList;
+	}
+	
+	//회원탈퇴를 처리하는 메서드 선언
+	public int userDelete(String id){
+		int rn = 0;
+		
+		String sql = "DELETE FROM users WHERE id = ?";
+		
+		try {
+			conn = DriverManager.getConnection(url,uid,upw);
+			pstmt = conn.prepareStatement(sql);
+			
+			pstmt.setString(1, id);
+			
+			rn = pstmt.executeUpdate();
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				conn.close();
+				pstmt.close();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		
+		return rn;
+	}
+}
+
+
+
+
+
+
+
+1)클래스 UserDAO에 코드를 추가하여 show_all_users.jsp에서 모든 사용자의 정보를 출력하게하시오
+//show_all_users.jsp
+<%@page import="kr.co.koo.jdbc.user.model.UserVo"%>
+<%@page import="kr.co.koo.jdbc.user.model.UserDAO"%>
+<%@page import="java.util.*"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+    
+    
+<%
+	UserDAO dao = UserDAO.getInstance();
+	List<UserVo> userList = dao.userSelectAll();
+	
+	for(UserVo user : userList){
+		String name = user.getName();
+		String id = user.getId();
+		String pw  = user.getPw();
+		String phone = user.getPhone1()
+				+"-"+user.getPhone2()
+				+"-"+user.getPhone3();
+		String gender = user.getGender();
+
+		out.print("이름: "+ name + "아이디: " + id + "비번: " + pw + 
+				"전번: " + phone + "성별: " + gender);
+		
+	}
+
+%>    
+
+
+
+
+
+2)MVC model 을 이용해서 현재 로그인된 사용자의 삭제에 관한 jdbc 로직은 UserDAO.java에서 
+	처리하게하고 해당 기능을 구현은 delete_ok.jsp에서하라
+
+//delete_ok.jsp
+
+<%@page import="kr.co.koo.jdbc.user.model.UserDAO"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+	pageEncoding="UTF-8"%>
+	
+<%@ page import = "java.sql.*" %>	
+
+<%
+	String id = (String)session.getAttribute("user_id");
+
+	UserDAO dao = UserDAO.getInstance();
+	int rn = dao.userDelete(id);
+	
+	if(rn == 1){
+		session.invalidate();
+		response.sendRedirect("login_form.jsp");
+	} else{
+		response.sendRedirect("login_welcome.jsp");
+	}
+	
+
+	/*
+	String sql = "DELETE FROM users WHERE id = '" + session.getAttribute("user_id") + "'";
+
+	String url = "jdbc:mysql://localhost:3306/jsp_practice";
+	String uid = "jsp";
+	String upw = "jsp";
+
+	Connection conn = null;
+	Statement stmt = null;
+
+	try {
+		Class.forName("com.mysql.jdbc.Driver");
+		conn = DriverManager.getConnection(url, uid, upw);
+		stmt = conn.createStatement();
+		int rn = stmt.executeUpdate(sql);
+
+		if(rn == 1){
+			out.print("<h3>삭제에 성공했습니다.</h3>");
+			session.invalidate();
+			out.print("<a href = 'login_form.jsp'>로그인페이지로 가기</a>");
+		} else{
+			out.print("<h3>삭제에 실패했습니다.</h3>");
+			out.print("<a href = 'login_form.jsp'>로그인페이지로 가기</a>");
+		}
+
+	} catch (Exception e) {
+		e.printStackTrace();
+	} finally {
+		try {
+			if (conn != null)
+				conn.close();
+			if (stmt != null)
+				stmt.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	*/
+%>

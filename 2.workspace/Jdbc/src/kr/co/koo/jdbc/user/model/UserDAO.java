@@ -9,11 +9,10 @@ public class UserDAO {
 	private String uid = "jsp";
 	private String upw = "jsp";
 	
-	private String sql = "";
 	
 	Connection conn = null;
 	PreparedStatement pstmt = null;
-	
+	ResultSet rs = null;
 	//싱글톤패턴 클래스생성
 	//1.클래스 외부에서 객체를 생성할수 없도록 생성자에 private제한을 붙임
 	
@@ -41,5 +40,113 @@ public class UserDAO {
 	
 	//UserDAO에서는 회원 관리에 필요한 db연동 로직들을 메서드로 나열하여 작성
 	
+	//DB에 회원가입 데이터를 insert하는 메서드 선언
+	public int join(UserVo users){
+		String sql = "INSERT INTO users VALUES (?,?,?,?,?,?,?)";
+		Connection conn = null;
+		PreparedStatement pstmt = null;
+		int rn = 0;
+		try{
+			conn = DriverManager.getConnection(url, uid, upw);
+			pstmt = conn.prepareStatement(sql);
+			
+			pstmt.setString(1,  users.getName());
+			pstmt.setString(2,  users.getId());
+			pstmt.setString(3,  users.getPw());
+			pstmt.setString(4,  users.getPhone1());
+			pstmt.setString(5,  users.getPhone2());
+			pstmt.setString(6,  users.getPhone3());
+			pstmt.setString(7,  users.getGender());
+
+			rn = pstmt.executeUpdate();
+
+		} catch(Exception e) {
+			e.printStackTrace();	
+		} finally{
+			try{
+				conn.close();
+				pstmt.close();
+				
+			} catch(Exception e) {
+				e.printStackTrace();	
+			}
+		}
+
+		return rn;
+	}
 	
+	
+	//DB로부터 모든 회원정보를 가져오는 메서드 선언
+	public List<UserVo> userSelectAll(){
+		
+		List<UserVo> userList = new ArrayList<>();
+		
+		String sql = "SELECT * FROM users";
+		
+		Connection conn = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		UserVo uv = new UserVo();
+		
+		try {
+			
+			conn = DriverManager.getConnection(url,uid,upw);
+			pstmt = conn.prepareStatement(sql);
+			rs = pstmt.executeQuery();
+			
+	
+			while(rs.next()) {
+				UserVo users = new UserVo(
+						rs.getString("name"),
+						rs.getString("id"),
+						rs.getString("pw"),
+						rs.getString("phone1"),
+						rs.getString("phone2"),
+						rs.getString("phone3"),
+						rs.getString("gender") );
+				
+				userList.add(users);
+			}
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				conn.close();
+				pstmt.close();
+				rs.close();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		
+		return userList;
+	}
+	
+	//회원탈퇴를 처리하는 메서드 선언
+	public int userDelete(String id){
+		int rn = 0;
+		
+		String sql = "DELETE FROM users WHERE id = ?";
+		
+		try {
+			conn = DriverManager.getConnection(url,uid,upw);
+			pstmt = conn.prepareStatement(sql);
+			
+			pstmt.setString(1, id);
+			
+			rn = pstmt.executeUpdate();
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				conn.close();
+				pstmt.close();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		
+		return rn;
+	}
 }

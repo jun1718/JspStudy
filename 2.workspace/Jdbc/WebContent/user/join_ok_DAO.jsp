@@ -1,3 +1,4 @@
+<%@page import="kr.co.koo.jdbc.user.model.UserDAO"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
 
@@ -71,7 +72,13 @@
 <jsp:setProperty name = "users" property = "*" />
 
 <%
-	
+	UserDAO dao = UserDAO.getInstance();
+	int rn = dao.join(users);
+	if(rn ==1){
+		session.setAttribute("user_name", users.getName());
+		response.sendRedirect("join_success.jsp");
+	} else{
+		response.sendRedirect("join_form.jsp");
+	}
 %>
-    
     
