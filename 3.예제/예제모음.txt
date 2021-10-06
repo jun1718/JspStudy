@@ -13885,6 +13885,7 @@ class :
 <jsp(폴더 user 이용)>
 	-join_form.jsp에서 <a href = "show_all_users.jsp">모든 회원정보 보기</a> 링크 만들기
 	-show_all_users.jsp 생성
+		-메서드명 : userSelectAll()
 
 1)클래스 UserDAO에 코드를 추가하여 show_all_users.jsp에서 모든 사용자의 정보를 출력하게하시오
 

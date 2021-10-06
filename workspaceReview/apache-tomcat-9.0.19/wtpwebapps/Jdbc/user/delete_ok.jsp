@@ -2,9 +2,24 @@
 	pageEncoding="UTF-8"%>
 
 <%@ page import = "java.sql.*" %>	
+<%@ page import = "kr.co.koo.jdbc.user.model.UserDAO" %>	
+
 	
 
 <%
+out.print("hihi");
+	String id = (String)session.getAttribute("user_id");
+	UserDAO dao = UserDAO.getInstance();
+	int rn = dao.userDelete(id);
+	
+	if(rn == 1){
+		session.invalidate();
+		response.sendRedirect("login_form.jsp");
+	}else{
+		response.sendRedirect("login_welcome.jsp");
+	}
+	
+/*
 	String url = "jdbc:mysql://localhost:3306/jsp_practice2";
 	String uid = "jsp1";
 	String upw = "jsp1";
@@ -41,15 +56,5 @@
 			e2.printStackTrace();
 		}
 	}
+	*/
 %>
-
-<!DOCTYPE html>
-<html>
-<head>
-<meta charset="UTF-8">
-<title>Insert title here</title>
-</head>
-<body>
-
-</body>
-</html>

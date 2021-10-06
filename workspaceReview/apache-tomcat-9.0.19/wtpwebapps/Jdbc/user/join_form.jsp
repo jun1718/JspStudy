@@ -29,6 +29,8 @@
 		<input type="submit" value="회원가입">
 	</form>
 	<a href = "login_form.jsp">로그인 페이지로</a>
+	<a href = "show_all_users.jsp">모든 회원정보 보기</a>
+	
 </body>
 </html>
 
