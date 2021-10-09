@@ -1,0 +1,1664 @@
+21.10.08_17회차(14강)
+=======================================================================================================
+*템플릿로딩, 커넥션풀
+=======================================================================================================
+
+
+
+
+
+
+
+
+
+
+
+
+
+######################################################################################################
+개념정리_커넥션풀
+
+
+* JDBC에서 트랜잭션 처리
+- 두 개  이상의 쿼리를 모두 성공적으로 실행해야 데이터가  정상적으로  처리되는 경우 DBMS는 트랜잭션(transaction)을 이용해서       
+	두개 이상의 쿼리를 마치 한 개의 쿼리처럼 처리할 수 있게 해줍니다.
+- 트랜잭션은 시작과 종료를 갖고 있으며, 트랜잭션이 시작되면 이후로 실행되는 쿼리 결과는 DBMS에 곧바로 반영되지 않고 임시로 보관됩니다.
+- 이후 트랜잭션을 커밋(commit)하면 임시 보관한 쿼리 결과를 실제 데이터베이스에 반영합니다.
+- 트랜잭션은 커밋하기 전에 에러가 발생하면 임시로 보관한 모든 쿼리 결과를 실제 데이터에 반영하지 않고 롤백(rollback)합니다.
+
+
+* 연결 풀(Connection Pool)
+- 연결 풀은 데이터베이스 메모리 내에 있는 데이터베이스 커넥션들로 구성된 하나의 캐시입니다.
+- 데이터베이스 연결 풀은 데이터에 대한  요청이 발생하면 재사용되는 것으로, 데이터베이스의 수행 능력을 향상시키기 위해 사용됩니다.
+- 연결  풀에서 하나의 연결이 생성되어 풀에 배치되면 새로운 연결이  만들어지지 않도록 재사용하지만, 만약  모든 연결이 사용 중에 
+	있으면 새로운 연결이 만들어져 풀에 추가됩니다.
+- 연결 풀을 통해 사용자는 데이터베이스 연결을 위해 기다리는 시간을 축소시켜줍니다.
+
+- 커넥션 풀 설정은 Eclipse-> Servers폴더에 -> context.xml을 수정합니다.
+<Resource
+auth="Container"
+driverClassName = "com.mysql.jdbc.Driver" url = "jdbc:mysql://localhost:3306/practice" username = "jsp"
+password = "jsp" name = "jdbc/mysql"
+type = "javax.sql.DataSource" maxActive = "300"
+maxWait = "1000"
+/>
+
+
+
+
+
+
+
+######################################################################################################
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+######################################################################################################
+예제61)커넥션풀 실습
+servers-tomcat폴더-context.xml - context 태그 제일 아래에 코드넣기
+
+	<!-- 커넥션 풀 설정 -->
+	<Resource 
+		auth="Container"
+		driverClassName="com.mysql.jdbc.Driver"
+		url="jdbc:mysql://localhost:3306/jsp_practice" 
+		username="jsp"
+		password="jsp" 
+		name="jdbc/mysql" 
+		type="javax.sql.DataSource"
+		maxActive="300" 
+		maxWait="1000" 
+	/>
+
+DAO로 가서 url,uid,upw, class.forname 주석처리(커넥션풀이 다해줌)
+자바파일에 커텍션풀(xml)을 로딩시키는법
+
+import javax.sql.DataSource; //private DataSource ds;
+import javax.naming.Context; //Context ct = new InitialContext();
+import javax.naming.InitialContext; // Context ct = new InitialContext();
+
+다하고나면 servers의 tomcat에서 republic을 synchronized 로 변경(우측에서 제일 가까운 활성화버튼크릭(최소화같은거빼고))
+
+
+######################################################################################################
+
+
+
+
+
+
+답:
+
+
+
+
+
+
+
+//context.xml
+
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+--><!-- The contents of this file will be loaded for each web application --><Context>
+
+    <!-- Default set of monitored resources. If one of these changes, the    -->
+    <!-- web application will be reloaded.                                   -->
+    <WatchedResource>WEB-INF/web.xml</WatchedResource>
+    <WatchedResource>WEB-INF/tomcat-web.xml</WatchedResource>
+    <WatchedResource>${catalina.base}/conf/web.xml</WatchedResource>
+
+    <!-- Uncomment this to disable session persistence across Tomcat restarts -->
+    <!--
+    <Manager pathname="" />
+    -->
+
+
+
+<!-- 커넥션 풀 설정 -->
+	<Resource 
+		auth="Container"
+		driverClassName="com.mysql.jdbc.Driver"
+		url="jdbc:mysql://localhost:3306/jsp_practice" 
+		username="jsp"
+		password="jsp" 
+		name="jdbc/mysql" 
+		type="javax.sql.DataSource"
+		maxActive="300" 
+		maxWait="1000" 
+	/>
+
+    
+</Context>
+
+
+
+//UserDAO.java
+package kr.co.koo.jdbc.user.model;
+
+import java.sql.*;
+import java.util.*;
+
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.sql.DataSource;
+
+//DAO클래스는 DB작업을 전담처리함
+public class UserDAO {
+	//private String url = "jdbc:mysql://localhost:3306/jsp_practice";
+	//private String uid = "jsp";
+	//private String upw = "jsp";
+	
+	private DataSource ds;
+	Connection conn = null;
+	PreparedStatement pstmt = null;
+	ResultSet rs = null;
+	//싱글톤패턴 클래스생성
+	//1.클래스 외부에서 객체를 생성할수 없도록 생성자에 private제한을 붙임
+	
+	private UserDAO() {
+		try {
+		//	Class.forName("com.mysql.jdbc.Driver");
+			Context ct = new InitialContext();
+			ds = (DataSource)ct.lookup("java:comp/env/jdbc/mysql");
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+	}
+	
+	//2.자신의 클래스 내부에서 스스로의 객체를 1개 생성함
+	private static UserDAO dao = new UserDAO();
+	
+	//3.외부에서 객체 생성을 요구할시 공개된 메서드를 통해 미리 만들어둔 단 하나의 객체를 리턴함
+	
+	public static UserDAO getInstance() {
+		if(dao != null) {
+			dao = new UserDAO();
+		}
+		return dao;
+	}
+	
+	//UserDAO에서는 회원 관리에 필요한 db연동 로직들을 메서드로 나열하여 작성
+	
+	//DB에 회원가입 데이터를 insert하는 메서드 선언
+	public int join(UserVo users){
+		String sql = "INSERT INTO users VALUES (?,?,?,?,?,?,?)";
+		Connection conn = null;
+		PreparedStatement pstmt = null;
+		int rn = 0;
+		try{
+			//conn = DriverManager.getConnection(url, uid, upw);
+			conn = ds.getConnection();
+			pstmt = conn.prepareStatement(sql);
+			
+			pstmt.setString(1,  users.getName());
+			pstmt.setString(2,  users.getId());
+			pstmt.setString(3,  users.getPw());
+			pstmt.setString(4,  users.getPhone1());
+			pstmt.setString(5,  users.getPhone2());
+			pstmt.setString(6,  users.getPhone3());
+			pstmt.setString(7,  users.getGender());
+
+			rn = pstmt.executeUpdate();
+
+		} catch(Exception e) {
+			e.printStackTrace();	
+		} finally{
+			try{
+				conn.close();
+				pstmt.close();
+				
+			} catch(Exception e) {
+				e.printStackTrace();	
+			}
+		}
+
+		return rn;
+	}
+	
+	
+	//DB로부터 모든 회원정보를 가져오는 메서드 선언
+	public List<UserVo> userSelectAll(){
+		
+		List<UserVo> userList = new ArrayList<>();
+		
+		String sql = "SELECT * FROM users";
+		
+		Connection conn = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		UserVo uv = new UserVo();
+		
+		try {
+			
+			conn = ds.getConnection();
+			pstmt = conn.prepareStatement(sql);
+			rs = pstmt.executeQuery();
+			System.out.println(conn);
+	
+			while(rs.next()) {
+				UserVo users = new UserVo(
+						rs.getString("name"),
+						rs.getString("id"),
+						rs.getString("pw"),
+						rs.getString("phone1"),
+						rs.getString("phone2"),
+						rs.getString("phone3"),
+						rs.getString("gender") );
+				
+				userList.add(users);
+			}
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				conn.close();
+				pstmt.close();
+				rs.close();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		
+		return userList;
+	}
+	
+	//회원탈퇴를 처리하는 메서드 선언
+	public int userDelete(String id){
+		int rn = 0;
+		
+		String sql = "DELETE FROM users WHERE id = ?";
+		
+		try {
+			conn = ds.getConnection();
+			pstmt = conn.prepareStatement(sql);
+			
+			pstmt.setString(1, id);
+			
+			rn = pstmt.executeUpdate();
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				conn.close();
+				pstmt.close();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		
+		return rn;
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+######################################################################################################
+예제62)프로젝트 생성 및 ui템플릿 적용시켜보기
+
+
+project : MyFirstWeb
+context root : izone	//강사님 주신 ui 템플릿에 이렇게 저장되어있어서 일단은 이렇게해야함
+context directory : WebContent
+
+
+mysql connector를 프로젝트에 구동시키기
+(jdbc꺼사용) webcontent - web-inf - lib
+
+템플릿내의 폴더및 파일 6개 복사 후 webcontent에 붙여넣기
+
+web.xml에서 welcome에 index.jsp 있음을 확인(실행가능한 파일명과 확장자를 표시해놓은듯)
+index.jsp 실행
+
+######################################################################################################
+
+
+
+
+
+######################################################################################################
+예제63)커넥션풀을 이용한 아이디중복검사
+
+
+1)아래 조건들을 모두 지켜서 회원가입시 아이디의 중복검사를 실시하는 메서드를 MemberDAO에 만들고 그걸 이용하여 유효성 검사를 
+	실시하라
+	-단 MemberDAO에서 connection pool을 이용해서하라
+
+kr.co.koo.izone.member.model 패키지생성
+MemberVO 생성후 db에 맞게 작성 
+MemberDAO 생성후 작성
+
+kr.co.koo.izone.util
+JdbcUtill.java : close()메서드생성(try로 conn, pstmt, rs 마지막에 닫는기능 메서드, pstmt는 stmt도 동시에 되도록하라)
+	-try를 전담하는 클래스 생성
+
+MemberDAO : 중복아이디검사 기능 confirmId() 메서드 생성
+	
+
+webcontent/users폴더
+login_modal.jspf 에서 어덯게 로그인되는 방식인지 확인하라
+	그후 회원가입 버튼을 누를시 작동하는 곳에가서 id를 #으로 바꿔라 왜냐면 아래에 자바스크립트에서 중복검사를하는데
+	우리는 우리가 만든 클래스로 중복검사를 실험해야하니까말이다. 현재 템플릿은 완벽히 구현된거라 이미다 되어있다.
+
+
+<modal> : 이렇게 변경하고 문제다풀면 원상복귀(이러는 이유_button이 비어있어서 다른기능을 넣어줘야하는건데 지금은 아이디중복검사만
+				호다닥해보기위해서 변경)
+
+91번라인 join_ok.jsp 에서 confirm_id.jsp로 변경
+	<form action="/izone/users/join_ok.jsp" name="signup" id="signUpForm" method="post"
+170번라인 button에서 submit으로 변경
+171번라인 id를 sigup-btn에서 #으로 변경
+
+confirm_id.jsp 생성
+confirm_id.jsp : 원하는 id를 입력시 해당 아이디의 중복검사후 중복이면 아이디가 중복됨! 팝업을 띠우고 아니면 아이디사용가능 팝업띠워라
+
+그후 index.jsp에서 실행
+
+
+######################################################################################################
+
+
+답:
+
+
+
+
+
+//MemberDAO
+package kr.co.koo.izone.member.model;
+
+import java.sql.*;
+import java.util.*;
+import javax.sql.DataSource;
+
+import kr.co.koo.izone.util.JdbcUtil;
+
+import javax.naming.*;
+
+public class MemberDAO {
+	private static MemberDAO dao = new MemberDAO();
+	private DataSource ds;
+	
+	Connection conn = null;
+	PreparedStatement pstmt = null;
+	ResultSet rs = null;
+	
+	public MemberDAO() {
+		try {
+			Context ct = new InitialContext();
+			ds = (DataSource)ct.lookup("java:comp/env/jdbc/mysql");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public static MemberDAO getInstance() {
+		if(dao==null) {
+			dao = new MemberDAO();
+		}
+		return dao;
+	}
+	
+	//ID 중복확인을 하는 메서드 선언
+	public boolean confirmId(String id) {
+		String sql = "SELECT user_id FROM izone_member "
+				+"WHERE user_id = ?";
+		boolean flag = false;
+		
+		try {
+			conn = ds.getConnection();
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setString(1, id);
+			
+			rs = pstmt.executeQuery();
+			
+			if(rs.next()) {
+				flag = true;	//아이디가 중복됨을 의미
+			} else {
+				flag = false;
+			}
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			JdbcUtil.close(conn);
+			JdbcUtil.close(pstmt);
+			//JdbcUtil.close(rs);
+		}
+		
+		return flag;
+	}
+}
+
+
+
+//MemberVO
+package kr.co.koo.izone.member.model;
+
+import java.sql.Timestamp;
+
+public class MemberVO {
+	private String userId;
+	private String userPw;
+	private String userName;
+	private String userEmail;
+	private Timestamp userRegDate;
+	
+	public MemberVO() {
+		
+	}
+
+	public MemberVO(String userId, String userPw, String userName, String userEmail, Timestamp userRegDate) {
+		super();
+		this.userId = userId;
+		this.userPw = userPw;
+		this.userName = userName;
+		this.userEmail = userEmail;
+		this.userRegDate = userRegDate;
+	}
+
+	public String getUserId() {
+		return userId;
+	}
+
+	public void setUserId(String userId) {
+		this.userId = userId;
+	}
+
+	public String getUserPw() {
+		return userPw;
+	}
+
+	public void setUserPw(String userPw) {
+		this.userPw = userPw;
+	}
+
+	public String getUserName() {
+		return userName;
+	}
+
+	public void setUserName(String userName) {
+		this.userName = userName;
+	}
+
+	public String getUserEmail() {
+		return userEmail;
+	}
+
+	public void setUserEmail(String userEmail) {
+		this.userEmail = userEmail;
+	}
+
+	public Timestamp getUserRegDate() {
+		return userRegDate;
+	}
+
+	public void setUserRegDate(Timestamp userRegDate) {
+		this.userRegDate = userRegDate;
+	}
+	
+	
+	
+}
+
+
+
+//login_modal.jspf
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+	pageEncoding="UTF-8"%>
+
+<!-- 로그인 Modal-->
+<div class="modal fade" id="log-in">
+	<div class="modal-dialog">
+		<div class="modal-content">
+
+			<!-- Modal Header -->
+			<div class="modal-header">
+				<h4 class="modal-title">
+					<span style="color: #ff52a0;">IZONE</span> 로그인
+				</h4>
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+			</div>
+
+			<!-- Modal body -->
+			<div class="modal-body">
+
+				<form action="#" name="izone-sign-in" method="post" id="signInForm"
+					style="margin-bottom: 0;">
+					<table style="cellpadding: 0; cellspacing: 0; margin: 0 auto; width: 100%">
+						<tr>
+							<td style="text-align: left">
+								<p><strong>아이디를 입력해주세요.</strong>&nbsp;&nbsp;&nbsp;<span id="idCheck"></span></p>
+							</td>
+						</tr>
+						<tr>
+							<td><input type="text" name="userId" id="signInId"
+								class="form-control tooltipstered" maxlength="10"
+								required="required" aria-required="true"
+								style="margin-bottom: 25px; width: 100%; height: 40px; border: 1px solid #d9d9de"
+								placeholder="최대 10자"></td>
+						</tr>
+						<tr>
+							<td style="text-align: left">
+								<p><strong>비밀번호를 입력해주세요.</strong>&nbsp;&nbsp;&nbsp;<span id="pwCheck"></span></p>
+							</td>
+						</tr>
+						<tr>
+							<td><input type="password" size="17" maxlength="20" id="signInPw"
+								name="userPw" class="form-control tooltipstered" 
+								maxlength="20" required="required" aria-required="true"
+								style="ime-mode: inactive; margin-bottom: 25px; height: 40px; border: 1px solid #d9d9de"
+								placeholder="최소 8자"></td>
+						</tr>
+						<tr>
+							<td style="padding-top: 10px; text-align: center">
+								<p><strong>로그인하셔서 WIZONE이 되어보세요~~!</strong></p>
+							</td>
+						</tr>
+						<tr>
+							<td style="width: 100%; text-align: center; colspan: 2;"><input
+								type="button" value="로그인" class="btn form-control tooltipstered" id="signIn-btn"
+								style="background-color: #ff52a0; margin-top: 0; height: 40px; color: white; border: 0px solid #f78f24; opacity: 0.8">
+							</td>
+						</tr>
+						<tr>
+							<td
+								style="width: 100%; text-align: center; colspan: 2; margin-top: 24px; padding-top: 12px; border-top: 1px solid #ececec">
+
+								<a class="btn form-control tooltipstered" data-toggle="modal"
+								href="#sign-up"
+								style="cursor: pointer; margin-top: 0; height: 40px; color: white; background-color: orange; border: 0px solid #388E3C; opacity: 0.8">
+									회원가입</a>
+							</td>
+						</tr>
+					</table>
+				</form>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- 회원가입 Modal -->
+<div class="modal fade" id="sign-up" role="dialog">
+	<div class="modal-dialog">
+
+		<!-- Modal content-->
+		<div class="modal-content">
+			<div class="modal-header">
+				<h4 class="modal-title">
+					<span style="color: #ff52a0;">IZONE</span> 회원 가입
+				</h4>
+				<button type="button" class="close" data-dismiss="modal">×</button>
+
+			</div>
+
+			<div class="modal-body">
+
+				<form action="/izone/users/confirm_id.jsp" name="signup" id="signUpForm" method="post"
+					style="margin-bottom: 0;">
+					<table
+						style="cellpadding: 0; cellspacing: 0; margin: 0 auto; width: 100%">
+						<tr>
+							<td style="text-align: left">
+								<p><strong>아이디를 입력해주세요.</strong>&nbsp;&nbsp;&nbsp;<span id="idChk"></span></p>
+							</td>
+								
+							
+						</tr>
+						<tr>
+							<td><input type="text" name="userId" id="user_id"
+								class="form-control tooltipstered" maxlength="14"
+								required="required" aria-required="true"
+								style="margin-bottom: 25px; width: 100%; height: 40px; border: 1px solid #d9d9de"
+								placeholder="숫자와 영어로 4-14자">
+								</td>
+							
+						</tr>
+
+						<tr>
+							<td style="text-align: left">
+								<p><strong>비밀번호를 입력해주세요.</strong>&nbsp;&nbsp;&nbsp;<span id="pwChk"></span></p>
+							</td>
+						</tr>
+						<tr>
+							<td><input type="password" size="17" maxlength="20" id="password"
+								name="userPw" class="form-control tooltipstered" 
+								maxlength="20" required="required" aria-required="true"
+								style="ime-mode: inactive; margin-bottom: 25px; height: 40px; border: 1px solid #d9d9de"
+								placeholder="영문과 특수문자를 포함한 최소 8자"></td>
+						</tr>
+						<tr>
+							<td style="text-align: left">
+								<p><strong>비밀번호를 재확인해주세요.</strong>&nbsp;&nbsp;&nbsp;<span id="pwChk2"></span></p>
+							</td>
+						</tr>
+						<tr>
+							<td><input type="password" size="17" maxlength="20" id="password_check"
+								name="pw_check" class="form-control tooltipstered" 
+								maxlength="20" required="required" aria-required="true"
+								style="ime-mode: inactive; margin-bottom: 25px; height: 40px; border: 1px solid #d9d9de"
+								placeholder="비밀번호가 일치해야합니다."></td>
+						</tr>
+
+						<tr>
+							<td style="text-align: left">
+								<p><strong>이름을 입력해주세요.</strong>&nbsp;&nbsp;&nbsp;<span id="nameChk"></span></p>
+							</td>
+						</tr>
+						<tr>
+							<td><input type="text" name="userName" id="user_name"
+								class="form-control tooltipstered" maxlength="6"
+								required="required" aria-required="true"
+								style="margin-bottom: 25px; width: 100%; height: 40px; border: 1px solid #d9d9de"
+								placeholder="한글로 최대 6자"></td>
+						</tr>
+						
+						<tr>
+							<td style="text-align: left">
+								<p><strong>이메일을 입력해주세요.</strong>&nbsp;&nbsp;&nbsp;<span id="emailChk"></span></p>
+							</td>
+						</tr>
+						<tr>
+							<td><input type="email" name="userEmail" id="user_email"
+								class="form-control tooltipstered" 
+								required="required" aria-required="true"
+								style="margin-bottom: 25px; width: 100%; height: 40px; border: 1px solid #d9d9de"
+								placeholder="ex) izone@produce.com"></td>
+						</tr>
+
+						<tr>
+							<td style="padding-top: 10px; text-align: center">
+								<p><strong>회원가입하셔서 WIZONE이 되어보세요~~!</strong></p>
+							</td>
+						</tr>
+						<tr>
+							<td style="width: 100%; text-align: center; colspan: 2;"><input
+								type="submit" value="회원가입" 
+								class="btn form-control tooltipstered" id="#"
+								style="background-color: #ff52a0; margin-top: 0; height: 40px; color: white; border: 0px solid #388E3C; opacity: 0.8">
+							</td>
+						</tr>
+
+					</table>
+				</form>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script>
+$(function(){
+	var getIdCheck= RegExp(/^[a-zA-Z0-9]{4,14}$/);
+	var getPwCheck= RegExp(/([a-zA-Z0-9].*[!,@,#,$,%,^,&,*,?,_,~])|([!,@,#,$,%,^,&,*,?,_,~].*[a-zA-Z0-9])/);
+	var getName= RegExp(/^[가-힣]+$/);
+	var getMail = RegExp(/^[A-Za-z0-9_\.\-]+@[A-Za-z0-9\-]+\.[A-Za-z0-9\-]+/);
+	var chk1 = false, chk2 = false, chk3 = false, chk4 = false, chk5 = false;
+	
+	//회원가입 검증~~
+	//ID 입력값 검증.
+	$('#user_id').on('keyup', function() {
+		if($("#user_id").val() == ""){
+			$('#user_id').css("background-color", "pink");
+			$('#idChk').html('<b style="font-size:16px;color:red;">[아이디는 필수 정보에요!]</b>');
+			chk1 = false;
+		}
+		
+		//아이디 유효성검사
+		else if(!getIdCheck.test($("#user_id").val())){
+			$('#user_id').css("background-color", "pink");
+			$('#idChk').html('<b style="font-size:16px;color:red;">[영문자,숫자 4-14자로 입력하라구~]</b>');	  
+			chk1 = false;
+		} 
+		//ID 중복확인 비동기 처리
+		else {
+			$.ajax({
+				type: "POST",
+				url: "/izone/users/confirm_id.jsp",
+				data: {
+					"user_id": $('#user_id').val()
+				},
+				success: function(data) {
+					if($.trim(data) == "YES") {
+						$('#user_id').css("background-color", "aqua");
+						$('#idChk').html('<b style="font-size:16px;color:green;">[ID 사용 가능!]</b>');
+						chk1 = true;
+					} else {
+						$('#user_id').css("background-color", "pink");
+						$('#idChk').html('<b style="font-size:16px;color:red;">[중복된 ID입니다!]</b>');
+						chk1 = false;
+					}
+				}
+			});
+		}
+	});
+	
+	//패스워드 입력값 검증.
+	$('#password').on('keyup', function() {
+		//비밀번호 공백 확인
+		if($("#password").val() == ""){
+		    $('#password').css("background-color", "pink");
+			$('#pwChk').html('<b style="font-size:16px;color:red;">[패스워드는 필수정보에요!]</b>');
+			chk2 = false;
+		}		         
+		//비밀번호 유효성검사
+		else if(!getPwCheck.test($("#password").val()) || $("#password").val().length < 8){
+		    $('#password').css("background-color", "pink");
+			$('#pwChk').html('<b style="font-size:16px;color:red;">[특수문자 포함 8자이상으루다가~]</b>');
+			chk2 = false;
+		} else {
+			$('#password').css("background-color", "aqua");
+			$('#pwChk').html('<b style="font-size:16px;color:green;">[참 잘했어요~♡]</b>');
+			chk2 = true;
+		}
+		
+	});
+	
+	//패스워드 확인란 입력값 검증.
+	$('#password_check').on('keyup', function() {
+		//비밀번호 확인란 공백 확인
+		if($("#password_check").val() == ""){
+		    $('#password_check').css("background-color", "pink");
+			$('#pwChk2').html('<b style="font-size:16px;color:red;">[패스워드확인은 필수정보에요!]</b>');
+			chk3 = false;
+		}		         
+		//비밀번호 확인란 유효성검사
+		else if($("#password").val() != $("#password_check").val()){
+		    $('#password_check').css("background-color", "pink");
+			$('#pwChk2').html('<b style="font-size:16px;color:red;">[위에랑 똑같이 제대로 써!!]</b>');
+			chk3 = false;
+		} else {
+			$('#password_check').css("background-color", "aqua");
+			$('#pwChk2').html('<b style="font-size:16px;color:green;">[참 잘했어요~♡]</b>');
+			chk3 = true;
+		}
+		
+	});
+	
+	//이름 입력값 검증.
+	$('#user_name').on('keyup', function() {
+		//이름값 공백 확인
+		if($("#user_name").val() == ""){
+		    $('#user_name').css("background-color", "pink");
+			$('#nameChk').html('<b style="font-size:16px;color:red;">[이름은 필수정보에요!]</b>');
+			chk4 = false;
+		}		         
+		//이름값 유효성검사
+		else if(!getName.test($("#user_name").val())){
+		    $('#user_name').css("background-color", "pink");
+			$('#nameChk').html('<b style="font-size:16px;color:red;">[이름은 한글로 쓰세용~]</b>');
+			chk4 = false;
+		} else {
+			$('#user_name').css("background-color", "aqua");
+			$('#nameChk').html('<b style="font-size:16px;color:green;">[참 잘했어요~♡]</b>');
+			chk4 = true;
+		}
+		
+	});
+	
+	//이메일 입력값 검증.
+	$('#user_email').on('keyup', function() {
+		//이메일값 공백 확인
+		if($("#user_email").val() == ""){
+		    $('#user_email').css("background-color", "pink");
+			$('#emailChk').html('<b style="font-size:16px;color:red;">[이메일은 필수정보에요!]</b>');
+			chk5 = false;
+		}		         
+		//이메일값 유효성검사
+		else if(!getMail.test($("#user_email").val())){
+		    $('#user_email').css("background-color", "pink");
+			$('#emailChk').html('<b style="font-size:16px;color:red;">[이메일 형식 몰라?]</b>');
+			chk5 = false;
+		} else {
+			$('#user_email').css("background-color", "aqua");
+			$('#emailChk').html('<b style="font-size:16px;color:green;">[참 잘했어요~♡]</b>');
+			chk5 = true;
+		}
+		
+	});
+	
+	$('#signup-btn').click(function(e) {
+		if(chk1 && chk2 && chk3 && chk4 && chk5) {
+			var answer = confirm('회원가입을 완료하시겠습니까?');
+			if(answer) {
+				e.preventDefault();
+				$('#signUpForm').submit();
+			} 
+		} else {
+			alert('입력정보를 다시 확인하세요.');			
+		}
+	});
+	
+	///////////////////////////////////////////////////////////////////////////////////////////
+	
+	//로그인 검증~~
+	//ID 입력값 검증.
+	$('#signInId').on('keyup', function() {
+		if($("#signInId").val() == ""){
+			$('#signInId').css("background-color", "pink");
+			$('#idCheck').html('<b style="font-size:16px;color:red;">[아이디는 필수 정보에요!]</b>');
+			chk1 = false;
+		}		
+		
+		//아이디 유효성검사
+		else if(!getIdCheck.test($("#signInId").val())){
+			$('#signInId').css("background-color", "pink");
+			$('#idCheck').html('<b style="font-size:16px;color:red;">[영문자,숫자 4-14자로 입력하라구~]</b>');	  
+			chk1 = false;
+		} else {
+			$('#signInId').css("background-color", "aqua");
+			$('#idCheck').html('<b style="font-size:16px;color:green;">[참 잘했어요~♡]</b>');
+			chk1 = true;
+		}
+	});
+	
+	//패스워드 입력값 검증.
+	$('#signInPw').on('keyup', function() {
+		//비밀번호 공백 확인
+		if($("#signInPw").val() == ""){
+		    $('#signInPw').css("background-color", "pink");
+			$('#pwCheck').html('<b style="font-size:16px;color:red;">[패스워드는 필수정보에요!]</b>');
+			chk2 = false;
+		}		         
+		//비밀번호 유효성검사
+		else if(!getPwCheck.test($("#signInPw").val()) || $("#signInPw").val().length < 8){
+		    $('#signInPw').css("background-color", "pink");
+			$('#pwCheck').html('<b style="font-size:16px;color:red;">[특수문자 포함 8자이상으루다가~]</b>');
+			chk2 = false;
+		} else {
+			$('#signInPw').css("background-color", "aqua");
+			$('#pwCheck').html('<b style="font-size:16px;color:green;">[참 잘했어요~♡]</b>');
+			chk2 = true;
+		}
+		
+	});
+	
+	$('#signIn-btn').click(function(e) {
+		if(chk1 && chk2) {							
+			$.ajax({
+				type: "POST",
+				url: "/izone/users/check_login.jsp",
+				data: {
+					"user_id": $('#signInId').val(),
+					"user_pw": $('#signInPw').val()
+				},
+				success: function(data) {
+					
+					if($.trim(data) == "NOT_ID") {
+						$('#signInId').css("background-color", "pink");
+						$('#idCheck').html('<b style="font-size:16px;color:red;">[회원가입 먼저~~]</b>');
+						$('#signInPw').val("");
+						$('#signInId').focus();
+						chk2 = false;
+				    } else if($.trim(data) == "NOT_PW") {
+						$('#signInPw').css("background-color", "pink");
+						$('#signInPw').val("");
+						$('#signInPw').focus();
+						$('#pwCheck').html('<b style="font-size:16px;color:red;">[비밀번호가 틀렸습니다ㅠㅠ]</b>');
+						chk2 = false;
+					} else if($.trim(data) == "LOGIN_OK") {
+						location.href="/izone";
+					}
+				}
+			});			
+		} else {
+			alert('입력정보를 다시 확인하세요.');			
+		}
+	});
+	
+});
+
+
+</script>
+
+
+
+
+
+
+//confirm_id.jsp
+<%@page import="kr.co.koo.izone.member.model.MemberDAO"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+    
+    
+<%
+	String userId = request.getParameter("userId");
+
+	out.print("hi");
+	out.print(userId);
+	MemberDAO dao = MemberDAO.getInstance();
+	
+	boolean flag = dao.confirmId(userId);
+	out.print("hi");
+	out.print(flag);
+	if(flag){
+		
+%>    
+	<script>
+		alert('아이디가 중복됨!');
+		history.back();
+	</script>
+	<%} else {%>
+	<script>
+		alert('아이디 사용가능!');
+		history.back();
+	</script>
+	<%}%>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+######################################################################################################
+예제62)
+
+
+ID중복확인비동기처리 한글자칠때마다 가능이면 파랑색글자로 가능하다고 실시간뜨게해라
+	-현재 confirm_id.jsp까지는 무난히 yes no가 나오는데 out객체에서 뭔가 안넘어가는듯함
+		해결해라
+
+210번코드보면 비동기처리시 수행할 파일경로가 confirm_id.jsp이니 위에서 만든걸 활용
+기존 confirm_id에 있던 script 모두 주석처리 또는삭제
+
+######################################################################################################
+
+
+
+
+
+
+답:
+
+
+
+
+//confirm_id.jsp
+<%@page import="kr.co.koo.izone.member.model.MemberDAO"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+    
+    
+<%
+	String userId = request.getParameter("user_id");
+
+	out.print(userId);
+	MemberDAO dao = MemberDAO.getInstance();
+	
+	boolean flag = dao.confirmId(userId);
+	System.out.print(flag);
+	
+	String str = "";
+	
+	if(flag){
+		str = "NO";
+		out.print(str);
+		
+		System.out.println("ID중복!!");
+		System.out.println(str);
+	} else {
+		str = "YES";
+		out.print(str);
+		System.out.println("ID사용 가능!!");
+		System.out.println(str);
+	}
+%>
+
+
+//login_modal.jspf
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+	pageEncoding="UTF-8"%>
+
+<!-- 로그인 Modal-->
+<div class="modal fade" id="log-in">
+	<div class="modal-dialog">
+		<div class="modal-content">
+
+			<!-- Modal Header -->
+			<div class="modal-header">
+				<h4 class="modal-title">
+					<span style="color: #ff52a0;">IZONE</span> 로그인
+				</h4>
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+			</div>
+
+			<!-- Modal body -->
+			<div class="modal-body">
+
+				<form action="#" name="izone-sign-in" method="post" id="signInForm"
+					style="margin-bottom: 0;">
+					<table style="cellpadding: 0; cellspacing: 0; margin: 0 auto; width: 100%">
+						<tr>
+							<td style="text-align: left">
+								<p><strong>아이디를 입력해주세요.</strong>&nbsp;&nbsp;&nbsp;<span id="idCheck"></span></p>
+							</td>
+						</tr>
+						<tr>
+							<td><input type="text" name="userId" id="signInId"
+								class="form-control tooltipstered" maxlength="10"
+								required="required" aria-required="true"
+								style="margin-bottom: 25px; width: 100%; height: 40px; border: 1px solid #d9d9de"
+								placeholder="최대 10자"></td>
+						</tr>
+						<tr>
+							<td style="text-align: left">
+								<p><strong>비밀번호를 입력해주세요.</strong>&nbsp;&nbsp;&nbsp;<span id="pwCheck"></span></p>
+							</td>
+						</tr>
+						<tr>
+							<td><input type="password" size="17" maxlength="20" id="signInPw"
+								name="userPw" class="form-control tooltipstered" 
+								maxlength="20" required="required" aria-required="true"
+								style="ime-mode: inactive; margin-bottom: 25px; height: 40px; border: 1px solid #d9d9de"
+								placeholder="최소 8자"></td>
+						</tr>
+						<tr>
+							<td style="padding-top: 10px; text-align: center">
+								<p><strong>로그인하셔서 WIZONE이 되어보세요~~!</strong></p>
+							</td>
+						</tr>
+						<tr>
+							<td style="width: 100%; text-align: center; colspan: 2;"><input
+								type="button" value="로그인" class="btn form-control tooltipstered" id="signIn-btn"
+								style="background-color: #ff52a0; margin-top: 0; height: 40px; color: white; border: 0px solid #f78f24; opacity: 0.8">
+							</td>
+						</tr>
+						<tr>
+							<td
+								style="width: 100%; text-align: center; colspan: 2; margin-top: 24px; padding-top: 12px; border-top: 1px solid #ececec">
+
+								<a class="btn form-control tooltipstered" data-toggle="modal"
+								href="#sign-up"
+								style="cursor: pointer; margin-top: 0; height: 40px; color: white; background-color: orange; border: 0px solid #388E3C; opacity: 0.8">
+									회원가입</a>
+							</td>
+						</tr>
+					</table>
+				</form>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- 회원가입 Modal -->
+<div class="modal fade" id="sign-up" role="dialog">
+	<div class="modal-dialog">
+
+		<!-- Modal content-->
+		<div class="modal-content">
+			<div class="modal-header">
+				<h4 class="modal-title">
+					<span style="color: #ff52a0;">IZONE</span> 회원 가입
+				</h4>
+				<button type="button" class="close" data-dismiss="modal">×</button>
+
+			</div>
+
+			<div class="modal-body">
+
+				<form action="/izone/users/join_ok.jsp" name="signup" id="signUpForm" method="post"
+					style="margin-bottom: 0;">
+					<table
+						style="cellpadding: 0; cellspacing: 0; margin: 0 auto; width: 100%">
+						<tr>
+							<td style="text-align: left">
+								<p><strong>아이디를 입력해주세요.</strong>&nbsp;&nbsp;&nbsp;<span id="idChk"></span></p>
+							</td>
+								
+							
+						</tr>
+						<tr>
+							<td><input type="text" name="userId" id="user_id"
+								class="form-control tooltipstered" maxlength="14"
+								required="required" aria-required="true"
+								style="margin-bottom: 25px; width: 100%; height: 40px; border: 1px solid #d9d9de"
+								placeholder="숫자와 영어로 4-14자">
+								</td>
+							
+						</tr>
+
+						<tr>
+							<td style="text-align: left">
+								<p><strong>비밀번호를 입력해주세요.</strong>&nbsp;&nbsp;&nbsp;<span id="pwChk"></span></p>
+							</td>
+						</tr>
+						<tr>
+							<td><input type="password" size="17" maxlength="20" id="password"
+								name="userPw" class="form-control tooltipstered" 
+								maxlength="20" required="required" aria-required="true"
+								style="ime-mode: inactive; margin-bottom: 25px; height: 40px; border: 1px solid #d9d9de"
+								placeholder="영문과 특수문자를 포함한 최소 8자"></td>
+						</tr>
+						<tr>
+							<td style="text-align: left">
+								<p><strong>비밀번호를 재확인해주세요.</strong>&nbsp;&nbsp;&nbsp;<span id="pwChk2"></span></p>
+							</td>
+						</tr>
+						<tr>
+							<td><input type="password" size="17" maxlength="20" id="password_check"
+								name="pw_check" class="form-control tooltipstered" 
+								maxlength="20" required="required" aria-required="true"
+								style="ime-mode: inactive; margin-bottom: 25px; height: 40px; border: 1px solid #d9d9de"
+								placeholder="비밀번호가 일치해야합니다."></td>
+						</tr>
+
+						<tr>
+							<td style="text-align: left">
+								<p><strong>이름을 입력해주세요.</strong>&nbsp;&nbsp;&nbsp;<span id="nameChk"></span></p>
+							</td>
+						</tr>
+						<tr>
+							<td><input type="text" name="userName" id="user_name"
+								class="form-control tooltipstered" maxlength="6"
+								required="required" aria-required="true"
+								style="margin-bottom: 25px; width: 100%; height: 40px; border: 1px solid #d9d9de"
+								placeholder="한글로 최대 6자"></td>
+						</tr>
+						
+						<tr>
+							<td style="text-align: left">
+								<p><strong>이메일을 입력해주세요.</strong>&nbsp;&nbsp;&nbsp;<span id="emailChk"></span></p>
+							</td>
+						</tr>
+						<tr>
+							<td><input type="email" name="userEmail" id="user_email"
+								class="form-control tooltipstered" 
+								required="required" aria-required="true"
+								style="margin-bottom: 25px; width: 100%; height: 40px; border: 1px solid #d9d9de"
+								placeholder="ex) izone@produce.com"></td>
+						</tr>
+
+						<tr>
+							<td style="padding-top: 10px; text-align: center">
+								<p><strong>회원가입하셔서 WIZONE이 되어보세요~~!</strong></p>
+							</td>
+						</tr>
+						<tr>
+							<td style="width: 100%; text-align: center; colspan: 2;"><input
+								type="button" value="회원가입" 
+								class="btn form-control tooltipstered" id="singup-btn"
+								style="background-color: #ff52a0; margin-top: 0; height: 40px; color: white; border: 0px solid #388E3C; opacity: 0.8">
+							</td>
+						</tr>
+
+					</table>
+				</form>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script>
+$(function(){
+	var getIdCheck= RegExp(/^[a-zA-Z0-9]{4,14}$/);
+	var getPwCheck= RegExp(/([a-zA-Z0-9].*[!,@,#,$,%,^,&,*,?,_,~])|([!,@,#,$,%,^,&,*,?,_,~].*[a-zA-Z0-9])/);
+	var getName= RegExp(/^[가-힣]+$/);
+	var getMail = RegExp(/^[A-Za-z0-9_\.\-]+@[A-Za-z0-9\-]+\.[A-Za-z0-9\-]+/);
+	var chk1 = false, chk2 = false, chk3 = false, chk4 = false, chk5 = false;
+	
+	//회원가입 검증~~
+	//ID 입력값 검증.
+	$('#user_id').on('keyup', function() {
+		if($("#user_id").val() == ""){
+			$('#user_id').css("background-color", "pink");
+			$('#idChk').html('<b style="font-size:16px;color:red;">[아이디는 필수 정보에요!]</b>');
+			chk1 = false;
+		}
+		
+		//아이디 유효성검사
+		else if(!getIdCheck.test($("#user_id").val())){
+			$('#user_id').css("background-color", "pink");
+			$('#idChk').html('<b style="font-size:16px;color:red;">[영문자,숫자 4-14자로 입력하라구~]</b>');	  
+			chk1 = false;
+		} 
+		//ID 중복확인 비동기 처리
+		else {
+			$.ajax({
+				type: "POST",
+				url: "/izone/users/confirm_id.jsp",
+				
+				data: {
+					"user_id": $('#user_id').val()
+				},
+				success: function(data) {
+					System.out.print(data);
+					if($.trim(data) == "YES") {
+						$('#user_id').css("background-color", "aqua");
+						$('#idChk').html('<b style="font-size:16px;color:green;">[ID 사용 가능!]</b>');
+						chk1 = true;
+					} else {
+						$('#user_id').css("background-color", "pink");
+						$('#idChk').html('<b style="font-size:16px;color:red;">[중복된 ID입니다!]</b>');
+						chk1 = false;
+					}
+				}
+			});
+		}
+	});
+	
+	//패스워드 입력값 검증.
+	$('#password').on('keyup', function() {
+		//비밀번호 공백 확인
+		if($("#password").val() == ""){
+		    $('#password').css("background-color", "pink");
+			$('#pwChk').html('<b style="font-size:16px;color:red;">[패스워드는 필수정보에요!]</b>');
+			chk2 = false;
+		}		         
+		//비밀번호 유효성검사
+		else if(!getPwCheck.test($("#password").val()) || $("#password").val().length < 8){
+		    $('#password').css("background-color", "pink");
+			$('#pwChk').html('<b style="font-size:16px;color:red;">[특수문자 포함 8자이상으루다가~]</b>');
+			chk2 = false;
+		} else {
+			$('#password').css("background-color", "aqua");
+			$('#pwChk').html('<b style="font-size:16px;color:green;">[참 잘했어요~♡]</b>');
+			chk2 = true;
+		}
+		
+	});
+	
+	//패스워드 확인란 입력값 검증.
+	$('#password_check').on('keyup', function() {
+		//비밀번호 확인란 공백 확인
+		if($("#password_check").val() == ""){
+		    $('#password_check').css("background-color", "pink");
+			$('#pwChk2').html('<b style="font-size:16px;color:red;">[패스워드확인은 필수정보에요!]</b>');
+			chk3 = false;
+		}		         
+		//비밀번호 확인란 유효성검사
+		else if($("#password").val() != $("#password_check").val()){
+		    $('#password_check').css("background-color", "pink");
+			$('#pwChk2').html('<b style="font-size:16px;color:red;">[위에랑 똑같이 제대로 써!!]</b>');
+			chk3 = false;
+		} else {
+			$('#password_check').css("background-color", "aqua");
+			$('#pwChk2').html('<b style="font-size:16px;color:green;">[참 잘했어요~♡]</b>');
+			chk3 = true;
+		}
+		
+	});
+	
+	//이름 입력값 검증.
+	$('#user_name').on('keyup', function() {
+		//이름값 공백 확인
+		if($("#user_name").val() == ""){
+		    $('#user_name').css("background-color", "pink");
+			$('#nameChk').html('<b style="font-size:16px;color:red;">[이름은 필수정보에요!]</b>');
+			chk4 = false;
+		}		         
+		//이름값 유효성검사
+		else if(!getName.test($("#user_name").val())){
+		    $('#user_name').css("background-color", "pink");
+			$('#nameChk').html('<b style="font-size:16px;color:red;">[이름은 한글로 쓰세용~]</b>');
+			chk4 = false;
+		} else {
+			$('#user_name').css("background-color", "aqua");
+			$('#nameChk').html('<b style="font-size:16px;color:green;">[참 잘했어요~♡]</b>');
+			chk4 = true;
+		}
+		
+	});
+	
+	//이메일 입력값 검증.
+	$('#user_email').on('keyup', function() {
+		//이메일값 공백 확인
+		if($("#user_email").val() == ""){
+		    $('#user_email').css("background-color", "pink");
+			$('#emailChk').html('<b style="font-size:16px;color:red;">[이메일은 필수정보에요!]</b>');
+			chk5 = false;
+		}		         
+		//이메일값 유효성검사
+		else if(!getMail.test($("#user_email").val())){
+		    $('#user_email').css("background-color", "pink");
+			$('#emailChk').html('<b style="font-size:16px;color:red;">[이메일 형식 몰라?]</b>');
+			chk5 = false;
+		} else {
+			$('#user_email').css("background-color", "aqua");
+			$('#emailChk').html('<b style="font-size:16px;color:green;">[참 잘했어요~♡]</b>');
+			chk5 = true;
+		}
+		
+	});
+	
+	$('#signup-btn').click(function(e) {
+		if(chk1 && chk2 && chk3 && chk4 && chk5) {
+			var answer = confirm('회원가입을 완료하시겠습니까?');
+			if(answer) {
+				e.preventDefault();
+				$('#signUpForm').submit();
+			} 
+		} else {
+			alert('입력정보를 다시 확인하세요.');			
+		}
+	});
+	
+	///////////////////////////////////////////////////////////////////////////////////////////
+	
+	//로그인 검증~~
+	//ID 입력값 검증.
+	$('#signInId').on('keyup', function() {
+		if($("#signInId").val() == ""){
+			$('#signInId').css("background-color", "pink");
+			$('#idCheck').html('<b style="font-size:16px;color:red;">[아이디는 필수 정보에요!]</b>');
+			chk1 = false;
+		}		
+		
+		//아이디 유효성검사
+		else if(!getIdCheck.test($("#signInId").val())){
+			$('#signInId').css("background-color", "pink");
+			$('#idCheck').html('<b style="font-size:16px;color:red;">[영문자,숫자 4-14자로 입력하라구~]</b>');	  
+			chk1 = false;
+		} else {
+			$('#signInId').css("background-color", "aqua");
+			$('#idCheck').html('<b style="font-size:16px;color:green;">[참 잘했어요~♡]</b>');
+			chk1 = true;
+		}
+	});
+	
+	//패스워드 입력값 검증.
+	$('#signInPw').on('keyup', function() {
+		//비밀번호 공백 확인
+		if($("#signInPw").val() == ""){
+		    $('#signInPw').css("background-color", "pink");
+			$('#pwCheck').html('<b style="font-size:16px;color:red;">[패스워드는 필수정보에요!]</b>');
+			chk2 = false;
+		}		         
+		//비밀번호 유효성검사
+		else if(!getPwCheck.test($("#signInPw").val()) || $("#signInPw").val().length < 8){
+		    $('#signInPw').css("background-color", "pink");
+			$('#pwCheck').html('<b style="font-size:16px;color:red;">[특수문자 포함 8자이상으루다가~]</b>');
+			chk2 = false;
+		} else {
+			$('#signInPw').css("background-color", "aqua");
+			$('#pwCheck').html('<b style="font-size:16px;color:green;">[참 잘했어요~♡]</b>');
+			chk2 = true;
+		}
+		
+	});
+	
+	$('#signIn-btn').click(function(e) {
+		if(chk1 && chk2) {							
+			$.ajax({
+				type: "POST",
+				url: "/izone/users/check_login.jsp",
+				data: {
+					"user_id": $('#signInId').val(),
+					"user_pw": $('#signInPw').val()
+				},
+				success: function(data) {
+					
+					if($.trim(data) == "NOT_ID") {
+						$('#signInId').css("background-color", "pink");
+						$('#idCheck').html('<b style="font-size:16px;color:red;">[회원가입 먼저~~]</b>');
+						$('#signInPw').val("");
+						$('#signInId').focus();
+						chk2 = false;
+				    } else if($.trim(data) == "NOT_PW") {
+						$('#signInPw').css("background-color", "pink");
+						$('#signInPw').val("");
+						$('#signInPw').focus();
+						$('#pwCheck').html('<b style="font-size:16px;color:red;">[비밀번호가 틀렸습니다ㅠㅠ]</b>');
+						chk2 = false;
+					} else if($.trim(data) == "LOGIN_OK") {
+						location.href="/izone";
+					}
+				}
+			});			
+		} else {
+			alert('입력정보를 다시 확인하세요.');			
+		}
+	});
+	
+});
+
+
+</script>
+
+
+
+
+
+
+
+
+
+
+######################################################################################################
+예제63)
+
+
+1)아래의 요구대로 실시해라
+	-지금내가 템플릿받고 이것저것 만져서 개판된거같은데 로직은 아래 답이 맞다.
+	 복습할때 새롭게 탬플릿받고 딱 필요한거만 뜯어고쳐서 
+	 아이디중복 비동기식 체크 되는지확인하고 이것도 되는지 확인해라
+	-지금 무슨 회원가입 버튼클릭해도 안넘어간다 ㅋ
+
+users/join_ok.jsp 생성
+
+<%
+	//1. post요청 한글처리
+	//2. MemberVO에 회원데이터 객체로 포장하기.	
+	//3. DAO객체를 통한 DataBase Insert작업 수행.	
+	//4. 회원가입 성공 여부에 따른 페이지 안내
+	// - 성공시: alert('회원가입을 축하합니다.');
+    //   location.href='/izone'; => 해당 URL로 이동. //javascript의 문법인데 jsp의 sendRedirect와 같음 홈으로보내란말
+    // - 실패시: alert('회원가입에 실패했습니다.');
+    //   location.href='/izone'; => 해당 URL로 이동.
+%>
+
+회원가입을 수행하는 메서드(DAO)
+public ??? insertMember(???){
+}
+
+
+
+
+
+######################################################################################################
+
+
+
+
+
+
+답:
+
+
+//MemberDAO.java
+package kr.co.koo.izone.member.model;
+
+import java.sql.*;
+import java.util.*;
+import javax.sql.DataSource;
+
+import kr.co.koo.izone.util.JdbcUtil;
+
+import javax.naming.*;
+
+public class MemberDAO {
+	private static MemberDAO dao = new MemberDAO();
+	private DataSource ds;
+	
+	Connection conn = null;
+	PreparedStatement pstmt = null;
+	ResultSet rs = null;
+	
+	public MemberDAO() {
+		try {
+			Context ct = new InitialContext();
+			ds = (DataSource)ct.lookup("java:comp/env/jdbc/mysql");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public static MemberDAO getInstance() {
+		if(dao==null) {
+			dao = new MemberDAO();
+		}
+		return dao;
+	}
+	
+	//ID 중복확인을 하는 메서드 선언
+	public boolean confirmId(String id) {
+		String sql = "SELECT user_id FROM izone_member "
+				+"WHERE user_id = ?";
+		boolean flag = false;
+		
+		try {
+			conn = ds.getConnection();
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setString(1, id);
+			
+			rs = pstmt.executeQuery();
+			
+			if(rs.next()) {
+				flag = true;	//아이디가 중복됨을 의미
+			} else {
+				flag = false;
+			}
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			JdbcUtil.close(conn);
+			JdbcUtil.close(pstmt);
+			//JdbcUtil.close(rs);
+		}
+		
+		return flag;
+	}
+	
+	public int insertMember(MemberVO members) {
+		String sql = "INSERT INTO jsp_practice.izone_member "
+				+ "(user_id, user_pw, user_name, user_email) "
+				+ "VALUES('"+members.getUserId()+"', '"
+						+members.getUserPw()+"', '"
+						+members.getUserName()+ ")', '"
+						+members.getUserEmail()+ "')";
+		
+		int rn = 0;
+		try {
+			conn = ds.getConnection();
+			pstmt = conn.prepareStatement(sql);
+			
+			rn = pstmt.executeUpdate();
+			
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			JdbcUtil.close(conn);
+			JdbcUtil.close(pstmt);
+		}
+		
+		return rn;
+	}
+}
+
+
+
+//join_ok.jsp
+
+<%@page import="kr.co.koo.izone.member.model.MemberDAO"%>
+<%@page import="kr.co.koo.izone.member.model.MemberVO"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+    
+
+<jsp:useBean id = "members" class = "kr.co.koo.izone.member.model.MemberVO" />
+<jsp:setProperty name = "members" property = "*" />
+    
+<%
+	request.setCharacterEncoding("utf-8");
+	
+	MemberDAO dao = MemberDAO.getInstance();
+	int rn = dao.insertMember(members);
+	
+	if(rn==1){%>    
+	<script>
+		alert('회원가입을 축하합니다.');
+		location.href='/izone';
+	</script>	
+<%} else{ %>
+	<script>
+		alert('회원가입에 실패했습니다.');
+		location.href='/izone';
+	</script>
+<%}%>
+
+    
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+
+</body>
+</html>

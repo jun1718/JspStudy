@@ -11,5 +11,3 @@ CREATE TABLE users(
 );
 
 SELECT * FROM jsp_practice2.users;
-
-SELECT * FROM jsp_practice.member;

@@ -2,22 +2,27 @@ package kr.co.koo.jdbc.user.model;
 
 import java.sql.*;
 import java.util.*;
+import javax.sql.DataSource;
+import javax.naming.Context;
+import javax.naming.InitialContext;
 
 public class UserDAO {
-	private String url = "jdbc:mysql://localhost:3306/jsp_practice2";
-	private String uid = "jsp1";
-	private String upw = "jsp1";
+//	private String url = "jdbc:mysql://localhost:3306/jsp_practice2";
+//	private String uid = "jsp1";
+//	private String upw = "jsp1";
 	
 	
-	
+	private DataSource ds;
 	private Connection conn;
 	private PreparedStatement pstmt;
 	private ResultSet rs;
 	
 	private UserDAO() {
 		try {
-			Class.forName("com.mysql.jdbc.Driver");
-		} catch (ClassNotFoundException e) {
+			Context ct = new InitialContext();	
+			ds = (DataSource)ct.lookup("java:comp/env/jdbc/mysql");
+//			Class.forName("com.mysql.jdbc.Driver");
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
@@ -38,7 +43,7 @@ public class UserDAO {
 		int rn = 0;
 		
 		try {
-			conn = DriverManager.getConnection(url, uid, upw);
+			conn = ds.getConnection();
 			pstmt = conn.prepareStatement(sql);
 			
 			pstmt.setString(1, user.getName());
@@ -71,7 +76,7 @@ public class UserDAO {
 		
 		String sql = "SELECT* FROM users";
 		try {
-			conn = DriverManager.getConnection(url, uid, upw);
+			conn = ds.getConnection();
 			pstmt = conn.prepareStatement(sql);
 			rs = pstmt.executeQuery();
 			
@@ -107,7 +112,7 @@ public class UserDAO {
 		int rn = 0;
 		
 		try {
-			conn = DriverManager.getConnection(url, uid, upw);
+			conn = ds.getConnection();
 			pstmt = conn.prepareStatement(sql);
 			pstmt.setString(1, id);
 			

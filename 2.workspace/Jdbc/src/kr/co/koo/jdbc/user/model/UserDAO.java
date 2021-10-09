@@ -3,13 +3,17 @@ package kr.co.koo.jdbc.user.model;
 import java.sql.*;
 import java.util.*;
 
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.sql.DataSource;
+
 //DAO클래스는 DB작업을 전담처리함
 public class UserDAO {
-	private String url = "jdbc:mysql://localhost:3306/jsp_practice";
-	private String uid = "jsp";
-	private String upw = "jsp";
+	//private String url = "jdbc:mysql://localhost:3306/jsp_practice";
+	//private String uid = "jsp";
+	//private String upw = "jsp";
 	
-	
+	private DataSource ds;
 	Connection conn = null;
 	PreparedStatement pstmt = null;
 	ResultSet rs = null;
@@ -18,7 +22,9 @@ public class UserDAO {
 	
 	private UserDAO() {
 		try {
-			Class.forName("com.mysql.jdbc.Driver");
+		//	Class.forName("com.mysql.jdbc.Driver");
+			Context ct = new InitialContext();
+			ds = (DataSource)ct.lookup("java:comp/env/jdbc/mysql");
 			
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -47,7 +53,8 @@ public class UserDAO {
 		PreparedStatement pstmt = null;
 		int rn = 0;
 		try{
-			conn = DriverManager.getConnection(url, uid, upw);
+			//conn = DriverManager.getConnection(url, uid, upw);
+			conn = ds.getConnection();
 			pstmt = conn.prepareStatement(sql);
 			
 			pstmt.setString(1,  users.getName());
@@ -90,10 +97,10 @@ public class UserDAO {
 		
 		try {
 			
-			conn = DriverManager.getConnection(url,uid,upw);
+			conn = ds.getConnection();
 			pstmt = conn.prepareStatement(sql);
 			rs = pstmt.executeQuery();
-			
+			System.out.println(conn);
 	
 			while(rs.next()) {
 				UserVo users = new UserVo(
@@ -130,7 +137,7 @@ public class UserDAO {
 		String sql = "DELETE FROM users WHERE id = ?";
 		
 		try {
-			conn = DriverManager.getConnection(url,uid,upw);
+			conn = ds.getConnection();
 			pstmt = conn.prepareStatement(sql);
 			
 			pstmt.setString(1, id);

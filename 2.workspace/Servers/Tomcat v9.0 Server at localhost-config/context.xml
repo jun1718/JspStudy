@@ -26,4 +26,21 @@
     <!--
     <Manager pathname="" />
     -->
+
+
+
+<!-- 커넥션 풀 설정 -->
+	<Resource 
+		auth="Container"
+		driverClassName="com.mysql.jdbc.Driver"
+		url="jdbc:mysql://localhost:3306/jsp_practice" 
+		username="jsp"
+		password="jsp" 
+		name="jdbc/mysql" 
+		type="javax.sql.DataSource"
+		maxActive="300" 
+		maxWait="1000" 
+	/>
+
+    
 </Context>
