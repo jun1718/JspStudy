@@ -12,6 +12,7 @@ public class MemberDAO {
 	private PreparedStatement pstmt;
 	private ResultSet rs;
 	
+	
 	private MemberDAO() {
 		try {
 			Context ct = new InitialContext();
@@ -82,5 +83,69 @@ public class MemberDAO {
 		}
 		
 		return rn;
+	}
+	
+	
+	public int userCheck(String id, String pw) {
+		String sql = "SELECT user_pw FROM jsp_practice2.izone_member WHERE user_id = ?";
+		
+		int rn = -1;
+		MemberVO member = new MemberVO();
+		
+		try {
+			conn = ds.getConnection();
+			pstmt = conn.prepareStatement(sql);
+			
+			pstmt.setString(1, id);
+			rs = pstmt.executeQuery();
+			
+			if(rs.next()) {
+				rn = 0;
+				if(rs.getString("user_pw").equals(pw)) {
+					rn = 1;
+				}
+			}
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			JdbcUtill.close(conn);
+			JdbcUtill.close(pstmt);
+			JdbcUtill.close(rs);
+		}
+		
+		
+		return rn;
+	}
+	
+	//로그인한 회원의 회원정보를 모두 가져오는 메서드 선언.
+	public MemberVO getMemberInfo(String id) {
+		String sql = "SELECT * FROM jsp_practice2.izone_member WHERE user_id = ?";
+		
+		MemberVO member = new MemberVO();
+		try {
+			conn = ds.getConnection();
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setString(1, id);
+			
+			rs = pstmt.executeQuery();
+			
+			
+			if(rs.next()) {
+				member.setUserId(rs.getString("user_id"));
+				member.setUserPw(rs.getString("user_pw"));
+				member.setUserName(rs.getString("user_name"));
+				member.setUserEmail(rs.getString("user_email"));				
+			}
+			
+		} catch(Exception e){
+			e.printStackTrace();
+		}finally {
+			JdbcUtill.close(conn);
+			JdbcUtill.close(pstmt);
+			JdbcUtill.close(rs);
+		}
+		
+		return member;
 	}
 }
