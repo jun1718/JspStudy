@@ -1,0 +1,1247 @@
+21.10.13_20회차(15강)
+=======================================================================================================
+*복습
+=======================================================================================================
+
+
+
+
+
+
+
+
+
+
+
+######################################################################################################
+예제64)템플릿을 이용하여 로그인파일과 로그아웃파일 만들어 적용하기
+
+
+login_modal.jspf
+20번라인쯤 modal-body에서 form action을 #에서 check_login.jsp로 변경
+54번라인쯤 type = button을 잠시 submit으로 변경, id = signIn-btn 을 #으로 변경
+
+check_login.jsp 파일 생성
+
+
+
+1) check_login.jsp에서 아래와 같은 주석의 내용을 작성하라
+//1. 요청 파라미터 처리(입력된 id, pw)
+
+//2. 모델을 찾아 DB연동 처리.(모델찾는건 MemberDAO를 활용)
+
+//3. DB처리 결과에 따른 알림창 설정.
+// a - 로그인 성공시 세션에 user_id, user_name이란 이름으로
+//    로그인한 회원의 아이디와 이름을 저장 후 홈으로 안내.
+// b - 존재하지 않는 회원일 경우 알림창으로 "존재하지 않는 ID입니다"
+//    출력 후 뒤로가기 실행 (history.back())
+// c - 비밀번호가 틀렸을 경우 알림창으로 "비밀번호가 틀렸습니다" 출력 후
+//    뒤로가기 실행.
+<%@page import="kr.co.koo.izone.member.model.MemberVO"%>
+<%@page import="kr.co.koo.izone.member.model.MemberDAO"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+    
+<%
+	request.setCharacterEncoding("utf-8");
+	String id = request.getParameter("userId");
+	String pw = request.getParameter("userPw");
+
+	MemberDAO dao = MemberDAO.getInstance();
+	MemberVO member = dao.getMemberInfo(id);
+	
+	int rn = dao.userCheck(id, pw);
+	
+	
+	 if(rn== MemberDAO.LOGIN_FAIL_ID){%>
+		<script>
+			alert('존재하지 않는 ID입니다.');
+			history.back();
+		</script>
+	<%}else if(rn == MemberDAO.LOGIN_FAIL_PW){ %>
+		<script>
+			alert('비번틀림 ㅋ');
+			history.back();
+		</script>
+	<%}else{		
+		session.setAttribute("user_id", id);
+		session.setAttribute("user_name", member.getUserName());
+		response.sendRedirect("/izone");
+	}
+%>    
+    
+   
+
+2) MemberDAO에서 아래의 메서드를 작성하라
+	-이때 로그인성공, 아이디틀림, 비번틀림 3가지 경우가있는데 각각 리턴값을 다르게 뱉어라
+		-이 세개는 아래 세개로 상수화 시키고 해라	
+			LOGIN_SUCCESS = 1;
+			LOGIN_FAIL_ID = -1;
+			LOGIN_FAIL_PW = 0;
+
+ //로그인 유효성을 검증하는 메서드 선언
+public ??? userCheck(???){
+	//전달된정보를 바탕으로 로그인이 유효한지를 판정할수있는 JDBC 로직을 작성
+}
+
+//로그인한 회원의 회원정보를 모두 가져오는 메서드 선언.
+public ??? getMemberInfo(???){
+}
+
+package kr.co.koo.izone.member.model;
+
+import java.sql.*;
+import java.util.*;
+import javax.sql.DataSource;
+
+import kr.co.koo.izone.util.JdbcUtil;
+
+import javax.naming.*;
+
+public class MemberDAO {
+	private static MemberDAO dao = new MemberDAO();
+	private DataSource ds;
+	
+	private Connection conn = null;
+	private PreparedStatement pstmt = null;
+	private ResultSet rs = null;
+	
+	public static final int LOGIN_FAIL_ID = 0;
+	public static final int LOGIN_FAIL_PW = -1;
+	public static final int LOGIN_SUCCESS = 1;
+	
+	
+	public MemberDAO() {
+		try {
+			Context ct = new InitialContext();
+			ds = (DataSource)ct.lookup("java:comp/env/jdbc/mysql");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public static MemberDAO getInstance() {
+		if(dao==null) {
+			dao = new MemberDAO();
+		}
+		return dao;
+	}
+	
+	//ID 중복확인을 하는 메서드 선언
+	public boolean confirmId(String id) {
+		String sql = "SELECT user_id FROM izone_member "
+				+"WHERE user_id = ?";
+		boolean flag = false;
+		
+		try {
+			conn = ds.getConnection();
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setString(1, id);
+			
+			rs = pstmt.executeQuery();
+			
+			if(rs.next()) {
+				flag = true;	//아이디가 중복됨을 의미
+			} else {
+				flag = false;
+			}
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			JdbcUtil.close(conn);
+			JdbcUtil.close(pstmt);
+			//JdbcUtil.close(rs);
+		}
+		
+		return flag;
+	}
+	
+	public int insertMember(MemberVO member) {
+		String sql = "INSERT INTO jsp_practice.izone_member"
+				+ " (user_id, user_pw, user_name, user_email)"
+				+ " VALUES(?, ?, ?, ?)";
+		
+		int rn = 0;
+		try {
+			conn = ds.getConnection();
+			pstmt = conn.prepareStatement(sql);
+			
+			pstmt.setString(1, member.getUserId());
+			pstmt.setString(2, member.getUserPw());
+			pstmt.setString(3, member.getUserName());
+			pstmt.setString(4, member.getUserEmail());
+			
+			
+			rn = pstmt.executeUpdate();
+			
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			JdbcUtil.close(conn);
+			JdbcUtil.close(pstmt);
+		}
+		
+		return rn;
+	}
+	
+	
+	public int userCheck(String id, String pw) {
+		String sql = "SELECT user_pw FROM jsp_practice.izone_member WHERE user_id = ?";
+		int rn = LOGIN_FAIL_ID;
+		try {
+			conn = ds.getConnection();
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setString(1, id);
+			
+			
+			
+			rs = pstmt.executeQuery();
+			if(rs.next()) {
+				if(pw.equals(rs.getString("user_pw"))) {
+					rn = LOGIN_SUCCESS;
+				}else {					
+					rn = LOGIN_FAIL_PW;
+				}
+			}
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {			
+			JdbcUtil.close(conn);
+			JdbcUtil.close(pstmt);
+			JdbcUtil.close(rs);
+		}
+		return rn;
+	}
+	
+	public MemberVO getMemberInfo(String id) {
+		String sql = "SELECT * FROM jsp_practice.izone_member WHERE user_id = ?";
+		MemberVO member = new MemberVO();
+		try {
+			conn = ds.getConnection();
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setString(1, id);
+			
+			rs = pstmt.executeQuery();
+			if(rs.next()) {
+				member.setUserId(rs.getString("user_id"));
+				member.setUserPw(rs.getString("user_pw"));
+				member.setUserName(rs.getString("user_name"));
+				member.setUserEmail(rs.getString("user_email"));
+			}
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {			
+			JdbcUtil.close(conn);
+			JdbcUtil.close(pstmt);
+			JdbcUtil.close(rs);
+		}
+		
+		return member;
+	}
+}
+
+
+
+
+3)로그아웃 만들기
+	-users폴더에 logout.jsp 파일을 만들고 로그아웃에 관련한 로직을만들면됨
+	-로그아웃클릭하고 확인누르면 자동으로 logout.jsp 페이지가게 되어있다
+		-로그아웃후에는 메인으로 보내라
+
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+    
+    
+<%
+	session.invalidate();
+	response.sendRedirect("/izone");
+%>    
+
+######################################################################################################
+
+
+
+
+
+
+답:
+
+
+
+
+
+//MemberDAO.java
+package kr.co.koo.izone.member.model;
+
+import java.sql.*;
+
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.sql.DataSource;
+
+public class MemberDAO {
+	private DataSource ds;
+	private Connection conn;
+	private PreparedStatement pstmt;
+	private ResultSet rs;
+	
+	
+	private MemberDAO() {
+		try {
+			Context ct = new InitialContext();
+			ds = (DataSource)ct.lookup("java:comp/env/jdbc/mysql");
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	private static MemberDAO dao = new MemberDAO();
+	
+	public static MemberDAO getInstance() {
+		if(dao==null) {
+			dao = new MemberDAO();
+		}
+		return dao;
+	}
+	
+	public boolean confirmId(String id) {
+		String sql = "SELECT user_id FROM jsp_practice2.izone_member WHERE user_id = ?";
+		boolean flag = false;
+		try {
+			conn = ds.getConnection();
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setString(1, id);
+			
+			rs = pstmt.executeQuery();
+			
+			if(rs.next()) {
+				flag = true;
+			} 
+			
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.out.println("하아 모르겠다");
+		} finally {
+			JdbcUtill.close(conn);
+			JdbcUtill.close(pstmt);
+			JdbcUtill.close(rs);
+		}
+		
+		System.out.println("\n\n"+sql+"\n\n");
+		System.out.println("\n\n"+id+"\n\n");
+		System.out.println("\n\n"+flag+"\n\n");
+		return flag;
+	}
+	
+	
+	public int insertMember(MemberVO member) {
+		int rn = 0;
+		String sql = "INSERT INTO jsp_practice2.izone_member"
+				+ " (user_id, user_pw, user_name, user_email)"
+				+ " VALUES(?, ?, ?, ?)";
+		
+		try {
+			conn = ds.getConnection();
+			pstmt = conn.prepareStatement(sql);
+			
+			pstmt.setString(1, member.getUserId());
+			pstmt.setString(2, member.getUserPw());
+			pstmt.setString(3, member.getUserName());
+			pstmt.setString(4, member.getUserEmail());
+			
+			rn = pstmt.executeUpdate();
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
+		
+		return rn;
+	}
+	
+	
+	public int userCheck(String id, String pw) {
+		String sql = "SELECT user_pw FROM jsp_practice2.izone_member WHERE user_id = ?";
+		
+		int rn = -1;
+		MemberVO member = new MemberVO();
+		
+		try {
+			conn = ds.getConnection();
+			pstmt = conn.prepareStatement(sql);
+			
+			pstmt.setString(1, id);
+			rs = pstmt.executeQuery();
+			
+			if(rs.next()) {
+				rn = 0;
+				if(rs.getString("user_pw").equals(pw)) {
+					rn = 1;
+				}
+			}
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			JdbcUtill.close(conn);
+			JdbcUtill.close(pstmt);
+			JdbcUtill.close(rs);
+		}
+		
+		
+		return rn;
+	}
+	
+	//로그인한 회원의 회원정보를 모두 가져오는 메서드 선언.
+	public MemberVO getMemberInfo(String id) {
+		String sql = "SELECT * FROM jsp_practice2.izone_member WHERE user_id = ?";
+		
+		MemberVO member = new MemberVO();
+		try {
+			conn = ds.getConnection();
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setString(1, id);
+			
+			rs = pstmt.executeQuery();
+			
+			
+			if(rs.next()) {
+				member.setUserId(rs.getString("user_id"));
+				member.setUserPw(rs.getString("user_pw"));
+				member.setUserName(rs.getString("user_name"));
+				member.setUserEmail(rs.getString("user_email"));				
+			}
+			
+		} catch(Exception e){
+			e.printStackTrace();
+		}finally {
+			JdbcUtill.close(conn);
+			JdbcUtill.close(pstmt);
+			JdbcUtill.close(rs);
+		}
+		
+		return member;
+	}
+}
+
+
+//check_login.jsp
+<%@page import="kr.co.koo.izone.member.model.MemberVO"%>
+<%@page import="kr.co.koo.izone.member.model.MemberDAO"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+    
+<%
+
+//1. 요청 파라미터 처리(입력된 id, pw)
+	String id = request.getParameter("userId");
+	String pw = request.getParameter("userPw");
+	
+
+//2. 모델을 찾아 DB연동 처리.(모델찾는건 MemberDAO를 활용)
+	MemberDAO dao = MemberDAO.getInstance();
+	int rn = dao.userCheck(id, pw);	
+	
+
+//3. DB처리 결과에 따른 알림창 설정.
+// a - 로그인 성공시 세션에 user_id, user_name이란 이름으로
+//    로그인한 회원의 아이디와 이름을 저장 후 홈으로 안내.
+// b - 존재하지 않는 회원일 경우 알림창으로 "존재하지 않는 ID입니다"
+//    출력 후 뒤로가기 실행 (history.back())
+// c - 비밀번호가 틀렸을 경우 알림창으로 "비밀번호가 틀렸습니다" 출력 후
+//    뒤로가기 실행.
+
+	if(rn == -1){%>
+	<script>
+		alert("존재하지 않는 ID입니다.");
+		history.back();
+	</script>
+<% 		
+	}else if(rn == 0){ %>
+	<script>
+		alert("비번이 틀렸습니다.");
+		history.back();
+	</script>
+<% 		
+	}else{
+		MemberVO member = dao.getMemberInfo(id);
+		session.setAttribute("user_id", id);
+		session.setAttribute("user_name", member.getUserName());%>    	
+		
+	<script>
+		location.href = "/izone";
+	</script>
+<% }%>    
+   
+
+
+
+
+
+
+
+//logout.jsp
+
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+    
+<%
+	session.invalidate();
+	response.sendRedirect("/izone");
+%>    
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+######################################################################################################
+예제65)64번의 문제를 템플릿(이미 작성된 javascript)에 적용하여 기능수행하기
+
+#login_modal.jspf에서 로그인 로직 연습을 위해 잠시 변경해놓은것들 다시 되돌려라
+	-53번라인 button, id를 signIn-btn(이거까진함)
+		-이제 64에서 login_check.jsp에 만들어놓은 로직을 signIn-btn속성을 가진 버튼을 
+			클릭했을시에 발동하는 기능을 통해 되도록 login_check.jsp의 내용을 바꿀거다.
+			-signInId에서 keyup뜻은 키보드 때릴때마다 이기능 적용이란 뜻
+		
+1)원래대로 되돌린후 자바스크립트(이미작성된)가 정상실행되도록하라(signIn-btn)
+	 check_login.jsp를 수정하면 된다.
+
+		****참고
+			$('#signIn-btn').click(function(e) {
+				if(chk1 && chk2) {							
+					$.ajax({
+						type: "POST",
+						url: "/izone/users/check_login.jsp",
+						data: { // 여기서 user_id가 url로 보내는 파라미터이름이다.
+							"user_id": $('#signInId').val(),
+							"user_pw": $('#signInPw').val()
+						},
+						success: function(data) {
+					
+							if($.trim(data) == "NOT_ID") {
+								$('#signInId').css("background-color", "pink");
+								$('#idCheck').html('<b style="font-size:16px;color:red;">[회원가입 먼저~~]</b>');
+								$('#signInPw').val("");
+								$('#signInId').focus();
+								chk2 = false;
+							} else if($.trim(data) == "NOT_PW") {
+								$('#signInPw').css("background-color", "pink");
+								$('#signInPw').val("");
+								$('#signInPw').focus();
+								$('#pwCheck').html('<b style="font-size:16px;color:red;">[비밀번호가 틀렸습니다ㅠㅠ]</b>');
+								chk2 = false;
+							} else if($.trim(data) == "LOGIN_OK") {
+								location.href="/izone";
+							}
+						}
+					});			
+				} else {
+					alert('입력정보를 다시 확인하세요.');			
+				}
+			});
+
+
+
+
+
+
+
+
+<%@page import="kr.co.koo.izone.member.model.MemberVO"%>
+<%@page import="kr.co.koo.izone.member.model.MemberDAO"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+    
+<%
+	request.setCharacterEncoding("utf-8");
+	String id = request.getParameter("user_id");
+	String pw = request.getParameter("user_pw");
+
+	MemberDAO dao = MemberDAO.getInstance();
+	MemberVO member = dao.getMemberInfo(id);
+	
+	int rn = dao.userCheck(id, pw);
+	
+	String str = "";
+	
+	if(rn== MemberDAO.LOGIN_FAIL_ID){
+		str = "NOT_ID";
+	}else if(rn == MemberDAO.LOGIN_FAIL_PW){ 
+		str = "NOT_PW";
+	}else{		
+		str = "LOGIN_OK";
+		session.setAttribute("user_id", id);
+		session.setAttribute("user_name", member.getUserName());
+	}
+	
+	out.print(str);
+%>    
+    
+   
+######################################################################################################
+
+
+
+
+
+
+답:
+
+
+//check_login.jsp
+<%@page import="kr.co.koo.izone.member.model.MemberVO"%>
+<%@page import="kr.co.koo.izone.member.model.MemberDAO"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+    
+<%
+
+//1. 요청 파라미터 처리(입력된 id, pw)
+	String id = request.getParameter("user_id");
+	String pw = request.getParameter("user_pw");
+	
+
+//2. 모델을 찾아 DB연동 처리.(모델찾는건 MemberDAO를 활용)
+	MemberDAO dao = MemberDAO.getInstance();
+	int rn = dao.userCheck(id, pw);	
+	
+
+//3. DB처리 결과에 따른 알림창 설정.
+// a - 로그인 성공시 세션에 user_id, user_name이란 이름으로
+//    로그인한 회원의 아이디와 이름을 저장 후 홈으로 안내.
+// b - 존재하지 않는 회원일 경우 알림창으로 "존재하지 않는 ID입니다"
+//    출력 후 뒤로가기 실행 (history.back())
+// c - 비밀번호가 틀렸을 경우 알림창으로 "비밀번호가 틀렸습니다" 출력 후
+//    뒤로가기 실행.
+	String str = "";
+	if(rn == -1){
+		str = "NOT_ID";
+	}else if(rn == 0){ 
+		str = "NOT_PW";
+	}else{
+		MemberVO member = dao.getMemberInfo(id);
+		session.setAttribute("user_id", id);
+		session.setAttribute("user_name", member.getUserName());
+		str = "LOGIN_OK";		
+	}
+	
+	out.print(str);
+%>    
+   
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+######################################################################################################
+예제66)비밀번호 변경하기
+
+index.jsp에서 실행해서 로그인후 mypage 클릭해서 아무일 없는걸 확인
+	-그 후 중간에 ~님 안녕~하트 있는곳 클릭해서 아무일 없는걸 확인
+
+mypage_change_pw.jsp 생성
+	-내부내용은 답에서 붙여넣기(디자인이니까 상관없음)
+	-form에서 어디로가는지 확인, 기존비밀번호의 파라미터이름이 뭔지 확인 새로운 비밀번호 파라미터 이름이 뭔지 확인
+
+header.jspf 
+	-120번쯤에 있는 MYPAGE 클릭시 이동할 주소를 #에서 /izone/users/mypage_change_pw.jsp로 변경
+	-138번쯤에 있는 href를 #에서 /izone/users/mypage_change_pw.jsp로 변경
+
+위에꺼 이후에 다시 index.jsp에서 로그인후 mypage 클릭하면 화면이 나오는걸 확인(비번변경페이지만 당연히 나옴)
+
+1)그럼이제 위상황에서 변경을 눌렀을때 변경이되도록 탬플릿을 활용하라
+	-change_pw_ok.jsp 생성
+
+//change_pw_ok.jsp 힌트
+//1. 요청 파라미터 처리
+//2. 알맞은 모델을 찾아 로직 처리.
+// a - 기존 비밀번호가 맞는지 확인. (userCheck메서드 재활용)
+// b - 기존 비밀번호가 틀렸다면 "현재 비밀번호를 다시 확인하세요."
+//   라는 알림창을 띄우고 뒤로가기 실행.
+// c - 기존 비밀번호가 맞다면 새로운 비밀번호로 정상 변경 수행 후
+//    "비밀번호가 정상적으로 변경되었습니다." 알림창 출력 후,
+//   홈 화면으로 안내.
+<%@page import="kr.co.koo.izone.member.model.MemberDAO"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+
+
+<%
+	request.setCharacterEncoding("utf-8");
+	String oldPw = request.getParameter("oldPw");
+	String newPw = request.getParameter("newPw");
+	
+	String id = (String)session.getAttribute("user_id");
+	if(id == null) response.sendRedirect("/izone");
+	
+	MemberDAO dao = MemberDAO.getInstance();
+	
+	int rn = dao.userCheck(id, oldPw);
+	
+	if(rn == MemberDAO.LOGIN_FAIL_PW){%>
+		<script>
+			alert('현재 비밀번호를 확인하세요.');
+			history.back();
+		</script>	
+	<%} else{
+		rn = dao.changePassword(id, newPw);
+		if(rn==1){%>
+			<script>
+				alert('비밀번호가 정상적으로 변경되었습니다.');
+				location.href = "/izone";
+			</script>
+		<% }
+	}
+%>    
+    
+
+
+//MemberDAO.java 힌트
+//비밀번호 수정을 위한 메서드 선언
+	public ??? changePassword(???){
+		String sql = "UPDATE izone_member SET user_pw = ? WHERE  user_id = ?"
+	}
+
+package kr.co.koo.izone.member.model;
+
+import java.sql.*;
+import java.util.*;
+import javax.sql.DataSource;
+
+import kr.co.koo.izone.util.JdbcUtil;
+
+import javax.naming.*;
+
+public class MemberDAO {
+	private static MemberDAO dao = new MemberDAO();
+	private DataSource ds;
+	
+	private Connection conn = null;
+	private PreparedStatement pstmt = null;
+	private ResultSet rs = null;
+	
+	public static final int LOGIN_FAIL_ID = 0;
+	public static final int LOGIN_FAIL_PW = -1;
+	public static final int LOGIN_SUCCESS = 1;
+	
+	
+	public MemberDAO() {
+		try {
+			Context ct = new InitialContext();
+			ds = (DataSource)ct.lookup("java:comp/env/jdbc/mysql");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public static MemberDAO getInstance() {
+		if(dao==null) {
+			dao = new MemberDAO();
+		}
+		return dao;
+	}
+	
+	//ID 중복확인을 하는 메서드 선언
+	public boolean confirmId(String id) {
+		String sql = "SELECT user_id FROM izone_member "
+				+"WHERE user_id = ?";
+		boolean flag = false;
+		
+		try {
+			conn = ds.getConnection();
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setString(1, id);
+			
+			rs = pstmt.executeQuery();
+			
+			if(rs.next()) {
+				flag = true;	//아이디가 중복됨을 의미
+			} else {
+				flag = false;
+			}
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			JdbcUtil.close(conn);
+			JdbcUtil.close(pstmt);
+			//JdbcUtil.close(rs);
+		}
+		
+		return flag;
+	}
+	
+	public int insertMember(MemberVO member) {
+		String sql = "INSERT INTO jsp_practice.izone_member"
+				+ " (user_id, user_pw, user_name, user_email)"
+				+ " VALUES(?, ?, ?, ?)";
+		
+		int rn = 0;
+		try {
+			conn = ds.getConnection();
+			pstmt = conn.prepareStatement(sql);
+			
+			pstmt.setString(1, member.getUserId());
+			pstmt.setString(2, member.getUserPw());
+			pstmt.setString(3, member.getUserName());
+			pstmt.setString(4, member.getUserEmail());
+			
+			
+			rn = pstmt.executeUpdate();
+			
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			JdbcUtil.close(conn);
+			JdbcUtil.close(pstmt);
+		}
+		
+		return rn;
+	}
+	
+	
+	public int userCheck(String id, String pw) {
+		String sql = "SELECT user_pw FROM jsp_practice.izone_member WHERE user_id = ?";
+		int rn = LOGIN_FAIL_ID;
+		try {
+			conn = ds.getConnection();
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setString(1, id);
+			
+			
+			
+			rs = pstmt.executeQuery();
+			if(rs.next()) {
+				if(pw.equals(rs.getString("user_pw"))) {
+					rn = LOGIN_SUCCESS;
+				}else {					
+					rn = LOGIN_FAIL_PW;
+				}
+			}
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {			
+			JdbcUtil.close(conn);
+			JdbcUtil.close(pstmt);
+			JdbcUtil.close(rs);
+		}
+		return rn;
+	}
+	
+	public MemberVO getMemberInfo(String id) {
+		String sql = "SELECT * FROM jsp_practice.izone_member WHERE user_id = ?";
+		MemberVO member = new MemberVO();
+		try {
+			conn = ds.getConnection();
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setString(1, id);
+			
+			rs = pstmt.executeQuery();
+			if(rs.next()) {
+				member.setUserId(rs.getString("user_id"));
+				member.setUserPw(rs.getString("user_pw"));
+				member.setUserName(rs.getString("user_name"));
+				member.setUserEmail(rs.getString("user_email"));
+			}
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {			
+			JdbcUtil.close(conn);
+			JdbcUtil.close(pstmt);
+			JdbcUtil.close(rs);
+		}
+		
+		return member;
+	}
+	
+	
+	public int changePassword(String id, String pw) {
+		String sql = "UPDATE jsp_practice.izone_member set user_pw = ? WHERE user_id = ?";
+		
+		int rn = 0;
+		
+		try {
+			conn = ds.getConnection();
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setString(1, pw);
+			pstmt.setString(2, id);
+			
+			rn = pstmt.executeUpdate();
+			
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {			
+			JdbcUtil.close(conn);
+			JdbcUtil.close(pstmt);
+		}
+		
+		return rn;
+	}
+}
+
+######################################################################################################
+
+
+
+
+
+
+답:
+
+
+
+//mypage_change_pw.jsp
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<%
+	String userName = (String)session.getAttribute("user_name");
+	if(userName == null) response.sendRedirect("/izone");
+%>
+<%@ include file="../include/header.jspf" %>
+<style>
+header.masthead {
+	
+	display: none;
+}	
+</style>
+
+<br/><br/>
+<div class="row">
+<div class="col-md-3"></div>
+
+<div class="col-md-6">
+
+<ul class="nav nav-tabs nav-justified">
+   <li class="nav-item" ><a class="nav-link active" href="/izone/users/mypage_change_pw.jsp" style="font-size: 20px;"><strong>비밀번호 변경</strong></a></li>
+   <li class="nav-item"><a class="nav-link" href="#" style="font-size: 20px;"><strong>회원정보 수정</strong></a></li>
+   <li class="nav-item"><a class="nav-link" href="#" style="font-size: 20px;"><strong>회원 탈퇴하기</strong></a></li>
+   
+</ul>
+<br/><br/>
+
+<h4 style="color: #ff52a0;">비밀번호 변경 페이지</h4><hr/><br/>
+<form action="change_pw_ok.jsp" method="post" style="margin-bottom: 0;">
+<table style="cellpadding: 0; cellspacing: 0; margin: 0 auto; width: 100%">
+	<tr>
+		<td style="text-align: left">
+			<p><strong>기존 비밀번호를 입력하세요.</strong>&nbsp;&nbsp;&nbsp;<span id="oldCheck"></span></p>
+		</td>
+	</tr>
+	<tr>
+		<td><input type="password" size="17" maxlength="20" id="old_pw"
+			name="oldPw" class="form-control tooltipstered" 
+			maxlength="20" required="required" aria-required="true"
+			style="ime-mode: inactive; margin-bottom: 25px; height: 40px; border: 1px solid #d9d9de"
+			placeholder="로그인 당시의 비밀번호"></td>
+	</tr>
+	<tr>
+		<td style="text-align: left">
+			<p><strong>새로운 비밀번호를 입력해주세요.</strong>&nbsp;&nbsp;&nbsp;<span id="newCheck"></span></p>
+		</td>
+	</tr>
+	<tr>
+		<td><input type="password" size="17" maxlength="20" id="new_pw"
+			name="newPw" class="form-control tooltipstered" 
+			maxlength="20" required="required" aria-required="true"
+			style="ime-mode: inactive; margin-bottom: 25px; height: 40px; border: 1px solid #d9d9de"
+			placeholder="변경하고 싶은 비밀번호"></td>
+	</tr>
+	
+	<tr>
+		<td style="width: 100%; text-align: center; colspan: 2;"><input
+			type="submit" value="변경" class="btn form-control tooltipstered" id="change_pw_btn"
+			style="background-color: #ff52a0; margin-top: 0; height: 40px; color: white; border: 0px solid #f78f24; opacity: 0.8">
+		</td>
+	</tr>
+</table>
+</form>
+</div>
+<div class="col-md-3"></div>
+</div>
+
+<br/><br/>
+
+
+<%@ include file="../include/footer.jspf" %>
+
+
+
+
+
+
+//MemberDAO.java
+package kr.co.koo.izone.member.model;
+
+import java.sql.*;
+
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.sql.DataSource;
+
+
+
+public class MemberDAO {
+	private DataSource ds;
+	private Connection conn;
+	private PreparedStatement pstmt;
+	private ResultSet rs;
+	
+	public static final int LOGIN_SUCCESS = 1;
+	public static final int LOGIN_FAIL_ID = 0;
+	public static final int LOGIN_FAIL_PW = -1;
+	
+	private MemberDAO() {
+		try {
+			Context ct = new InitialContext();
+			ds = (DataSource)ct.lookup("java:comp/env/jdbc/mysql");
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	private static MemberDAO dao = new MemberDAO();
+	
+	public static MemberDAO getInstance() {
+		if(dao==null) {
+			dao = new MemberDAO();
+		}
+		return dao;
+	}
+	
+	public boolean confirmId(String id) {
+		String sql = "SELECT user_id FROM jsp_practice2.izone_member WHERE user_id = ?";
+		boolean flag = false;
+		try {
+			conn = ds.getConnection();
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setString(1, id);
+			
+			rs = pstmt.executeQuery();
+			
+			if(rs.next()) {
+				flag = true;
+			} 
+			
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.out.println("하아 모르겠다");
+		} finally {
+			JdbcUtill.close(conn);
+			JdbcUtill.close(pstmt);
+			JdbcUtill.close(rs);
+		}
+		
+		System.out.println("\n\n"+sql+"\n\n");
+		System.out.println("\n\n"+id+"\n\n");
+		System.out.println("\n\n"+flag+"\n\n");
+		return flag;
+	}
+	
+	
+	public int insertMember(MemberVO member) {
+		int rn = 0;
+		String sql = "INSERT INTO jsp_practice2.izone_member"
+				+ " (user_id, user_pw, user_name, user_email)"
+				+ " VALUES(?, ?, ?, ?)";
+		
+		try {
+			conn = ds.getConnection();
+			pstmt = conn.prepareStatement(sql);
+			
+			pstmt.setString(1, member.getUserId());
+			pstmt.setString(2, member.getUserPw());
+			pstmt.setString(3, member.getUserName());
+			pstmt.setString(4, member.getUserEmail());
+			
+			rn = pstmt.executeUpdate();
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
+		
+		return rn;
+	}
+	
+	
+	public int userCheck(String id, String pw) {
+		String sql = "SELECT user_pw FROM jsp_practice2.izone_member WHERE user_id = ?";
+		
+		int rn = LOGIN_FAIL_ID;
+		MemberVO member = new MemberVO();
+		
+		try {
+			conn = ds.getConnection();
+			pstmt = conn.prepareStatement(sql);
+			
+			pstmt.setString(1, id);
+			rs = pstmt.executeQuery();
+			
+			if(rs.next()) {
+				rn = LOGIN_FAIL_PW;
+				if(rs.getString("user_pw").equals(pw)) {
+					rn = LOGIN_SUCCESS;
+				}
+			}
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			JdbcUtill.close(conn);
+			JdbcUtill.close(pstmt);
+			JdbcUtill.close(rs);
+		}
+		
+		
+		return rn;
+	}
+	
+	//로그인한 회원의 회원정보를 모두 가져오는 메서드 선언.
+	public MemberVO getMemberInfo(String id) {
+		String sql = "SELECT * FROM jsp_practice2.izone_member WHERE user_id = ?";
+		
+		MemberVO member = new MemberVO();
+		try {
+			conn = ds.getConnection();
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setString(1, id);
+			
+			rs = pstmt.executeQuery();
+			
+			
+			if(rs.next()) {
+				member.setUserId(rs.getString("user_id"));
+				member.setUserPw(rs.getString("user_pw"));
+				member.setUserName(rs.getString("user_name"));
+				member.setUserEmail(rs.getString("user_email"));				
+			}
+			
+		} catch(Exception e){
+			e.printStackTrace();
+		}finally {
+			JdbcUtill.close(conn);
+			JdbcUtill.close(pstmt);
+			JdbcUtill.close(rs);
+		}
+		
+		return member;
+	}
+	
+	
+	//비밀번호 수정을 위한 메서드 선언
+	public int changePassword(String id, String pw){
+		String sql = "UPDATE izone_member SET user_pw = ? WHERE  user_id = ?";
+		int rn = 0;
+		
+		try {
+			conn = ds.getConnection();
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setString(1, pw);
+			pstmt.setString(2, id);
+		
+			rn = pstmt.executeUpdate();
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			JdbcUtill.close(conn);
+			JdbcUtill.close(pstmt);
+		}
+		
+		return rn;
+	}
+}
+
+
+
+
+//change_pw_ok.jsp
+<%@page import="kr.co.koo.izone.member.model.MemberDAO"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+    
+<%
+//1. 요청 파라미터 처리
+	String oldPw = request.getParameter("oldPw");
+	String newPw = request.getParameter("newPw");
+	
+	String id = (String)session.getAttribute("user_id");
+	if(id==null) response.sendRedirect("/izone");
+//2. 알맞은 모델을 찾아 로직 처리.
+// a - 기존 비밀번호가 맞는지 확인. (userCheck메서드 재활용)
+
+	MemberDAO dao = MemberDAO.getInstance();
+	
+	int rn = dao.userCheck(id, oldPw);
+	
+		
+	
+// b - 기존 비밀번호가 틀렸다면 "현재 비밀번호를 다시 확인하세요."
+//   라는 알림창을 띄우고 뒤로가기 실행.
+
+//c - 기존 비밀번호가 맞다면 새로운 비밀번호로 정상 변경 수행 후
+// "비밀번호가 정상적으로 변경되었습니다." 알림창 출력 후,
+//홈 화면으로 안내.
+
+
+	if(rn == MemberDAO.LOGIN_FAIL_PW){%>
+		<script>
+			alert('현재 비밀번호를 다시 확인하세요.');
+			history.back();
+		</script>		
+	<% } else{ 
+		rn = dao.changePassword(id, newPw);	
+			if(rn == 1){
+	%>
+				<script>
+					alert('비밀번호가 정상적으로 변경되었습니다.');
+					location.href = '/izone';
+				</script>		
+	<%		} else{%>
+				<script>
+					alert('비밀번호는 맞게 입력하셨는데 내부 프로그램문제로 비밀번호 변경을 못했습니다. 다시 시도해주세요.');
+					history.back();
+				</script>	
+	<% 		} 
+		};
+	%>
+	
+	

@@ -14,9 +14,9 @@ public class UserDAO {
 	//private String upw = "jsp";
 	
 	private DataSource ds;
-	Connection conn = null;
-	PreparedStatement pstmt = null;
-	ResultSet rs = null;
+	private Connection conn;
+	private PreparedStatement pstmt;
+	private ResultSet rs;
 	//싱글톤패턴 클래스생성
 	//1.클래스 외부에서 객체를 생성할수 없도록 생성자에 private제한을 붙임
 	

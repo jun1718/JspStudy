@@ -17,7 +17,7 @@
 			<!-- Modal body -->
 			<div class="modal-body">
 
-				<form action="#" name="izone-sign-in" method="post" id="signInForm"
+				<form action="/izone/users/check_login.jsp" name="izone-sign-in" method="post" id="signInForm"
 					style="margin-bottom: 0;">
 					<table style="cellpadding: 0; cellspacing: 0; margin: 0 auto; width: 100%">
 						<tr>
@@ -168,7 +168,7 @@
 						<tr>
 							<td style="width: 100%; text-align: center; colspan: 2;"><input
 								type="button" value="회원가입" 
-								class="btn form-control tooltipstered" id="singup-btn"
+								class="btn form-control tooltipstered" id="signup-btn"
 								style="background-color: #ff52a0; margin-top: 0; height: 40px; color: white; border: 0px solid #388E3C; opacity: 0.8">
 							</td>
 						</tr>
@@ -213,7 +213,6 @@ $(function(){
 					"user_id": $('#user_id').val()
 				},
 				success: function(data) {
-					System.out.print(data);
 					if($.trim(data) == "YES") {
 						$('#user_id').css("background-color", "aqua");
 						$('#idChk').html('<b style="font-size:16px;color:green;">[ID 사용 가능!]</b>');

@@ -117,7 +117,7 @@
           </li>
           <% } else { %>
           <li class="nav-item">
-            <a class="nav-link js-scroll-trigger" href="#">MYPAGE</a>
+            <a class="nav-link js-scroll-trigger" href="/izone/users/mypage_change_pw.jsp">MYPAGE</a>
           </li>
           <li class="nav-item">
             <a class="nav-link js-scroll-trigger" href="/izone/users/logout.jsp" onclick="return confirm('진짜로 로그아웃 하는거에요?')">LOGOUT</a>
@@ -135,7 +135,7 @@
     <% if(userSessionName == null) { %>
         <button class="btn btn-chu btn-xl text-uppercase js-scroll-trigger" data-toggle="modal" data-target="#log-in">CHU~♥</button>
     <% } else { %>
-    	 <a class="btn btn-chu btn-xl text-uppercase js-scroll-trigger" href="#"><%=userSessionName %>님 안녕~♥</a>
+    	 <a class="btn btn-chu btn-xl text-uppercase js-scroll-trigger" href="/izone/users/mypage_change_pw.jsp"><%=userSessionName %>님 안녕~♥</a>
     <% } %>
       </div>
     </div>

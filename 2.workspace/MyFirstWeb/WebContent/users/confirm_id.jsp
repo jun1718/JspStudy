@@ -4,13 +4,13 @@
     
     
 <%
+	request.setCharacterEncoding("utf-8");
+
 	String userId = request.getParameter("user_id");
 
-	out.print(userId);
 	MemberDAO dao = MemberDAO.getInstance();
 	
 	boolean flag = dao.confirmId(userId);
-	System.out.print(flag);
 	
 	String str = "";
 	

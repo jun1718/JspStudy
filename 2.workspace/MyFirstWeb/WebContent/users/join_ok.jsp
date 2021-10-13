@@ -2,16 +2,18 @@
 <%@page import="kr.co.koo.izone.member.model.MemberVO"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
-    
 
-<jsp:useBean id = "members" class = "kr.co.koo.izone.member.model.MemberVO" />
-<jsp:setProperty name = "members" property = "*" />
-    
+
 <%
 	request.setCharacterEncoding("utf-8");
-	
+%>    
+
+<jsp:useBean id = "member" class = "kr.co.koo.izone.member.model.MemberVO" />
+<jsp:setProperty name = "member" property = "*" />
+    
+<%
 	MemberDAO dao = MemberDAO.getInstance();
-	int rn = dao.insertMember(members);
+	int rn = dao.insertMember(member);
 	
 	if(rn==1){%>    
 	<script>

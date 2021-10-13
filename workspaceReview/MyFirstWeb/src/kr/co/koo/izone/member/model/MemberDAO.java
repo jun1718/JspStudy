@@ -6,12 +6,17 @@ import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.sql.DataSource;
 
+
+
 public class MemberDAO {
 	private DataSource ds;
 	private Connection conn;
 	private PreparedStatement pstmt;
 	private ResultSet rs;
 	
+	public static final int LOGIN_SUCCESS = 1;
+	public static final int LOGIN_FAIL_ID = 0;
+	public static final int LOGIN_FAIL_PW = -1;
 	
 	private MemberDAO() {
 		try {
@@ -89,7 +94,7 @@ public class MemberDAO {
 	public int userCheck(String id, String pw) {
 		String sql = "SELECT user_pw FROM jsp_practice2.izone_member WHERE user_id = ?";
 		
-		int rn = -1;
+		int rn = LOGIN_FAIL_ID;
 		MemberVO member = new MemberVO();
 		
 		try {
@@ -100,9 +105,9 @@ public class MemberDAO {
 			rs = pstmt.executeQuery();
 			
 			if(rs.next()) {
-				rn = 0;
+				rn = LOGIN_FAIL_PW;
 				if(rs.getString("user_pw").equals(pw)) {
-					rn = 1;
+					rn = LOGIN_SUCCESS;
 				}
 			}
 			
@@ -147,5 +152,29 @@ public class MemberDAO {
 		}
 		
 		return member;
+	}
+	
+	
+	//비밀번호 수정을 위한 메서드 선언
+	public int changePassword(String id, String pw){
+		String sql = "UPDATE izone_member SET user_pw = ? WHERE  user_id = ?";
+		int rn = 0;
+		
+		try {
+			conn = ds.getConnection();
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setString(1, pw);
+			pstmt.setString(2, id);
+		
+			rn = pstmt.executeUpdate();
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			JdbcUtill.close(conn);
+			JdbcUtill.close(pstmt);
+		}
+		
+		return rn;
 	}
 }

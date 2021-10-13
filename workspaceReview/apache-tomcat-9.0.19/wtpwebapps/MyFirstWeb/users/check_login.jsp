@@ -6,8 +6,8 @@
 <%
 
 //1. 요청 파라미터 처리(입력된 id, pw)
-	String id = request.getParameter("userId");
-	String pw = request.getParameter("userPw");
+	String id = request.getParameter("user_id");
+	String pw = request.getParameter("user_pw");
 	
 
 //2. 모델을 찾아 DB연동 처리.(모델찾는건 MemberDAO를 활용)
@@ -22,26 +22,18 @@
 //    출력 후 뒤로가기 실행 (history.back())
 // c - 비밀번호가 틀렸을 경우 알림창으로 "비밀번호가 틀렸습니다" 출력 후
 //    뒤로가기 실행.
-
-	if(rn == -1){%>
-	<script>
-		alert("존재하지 않는 ID입니다.");
-		history.back();
-	</script>
-<% 		
-	}else if(rn == 0){ %>
-	<script>
-		alert("비번이 틀렸습니다.");
-		history.back();
-	</script>
-<% 		
+	String str = "";
+	if(rn == MemberDAO.LOGIN_FAIL_ID){
+		str = "NOT_ID";
+	}else if(rn == MemberDAO.LOGIN_FAIL_PW){ 
+		str = "NOT_PW";
 	}else{
 		MemberVO member = dao.getMemberInfo(id);
 		session.setAttribute("user_id", id);
-		session.setAttribute("user_name", member.getUserName());%>    	
-		
-	<script>
-		location.href = "/izone";
-	</script>
-<% }%>    
+		session.setAttribute("user_name", member.getUserName());
+		str = "LOGIN_OK";		
+	}
+	
+	out.print(str);
+%>    
    
