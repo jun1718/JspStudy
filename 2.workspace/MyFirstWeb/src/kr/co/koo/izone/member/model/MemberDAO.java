@@ -177,4 +177,28 @@ public class MemberDAO {
 		
 		return rn;
 	}
+	
+	
+	public int updateMember(MemberVO member) {
+		String sql = "UPDATE izone_member SET user_name = ?, user_email = ? WHERE"
+				+ " user_id = ?";
+		int rn = 0;
+		try {
+			conn = ds.getConnection();
+			pstmt = conn.prepareStatement(sql);
+			
+			pstmt.setString(1, member.getUserName());
+			pstmt.setString(2, member.getUserEmail());
+			pstmt.setString(3, member.getUserId());
+			
+			rn = pstmt.executeUpdate();
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			JdbcUtil.close(conn);
+			JdbcUtil.close(pstmt);
+		}
+		
+		return rn;
+	}
 }

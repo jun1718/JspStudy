@@ -1,0 +1,668 @@
+21.10.14_21회차(16강)
+=======================================================================================================
+*템플릿에 MVC모델 적용하기(architecture 1)_로그인, 로그아웃, 마이페이지(비번변경)
+=======================================================================================================
+
+
+
+
+
+
+
+
+
+
+######################################################################################################
+예제67)템플릿을 이용한 jsp 기초문법 복습
+
+servers안에 context.xml안에 제일아래 context의 path를 바꾸면 context 루트변경가능
+
+1)mypage_user_update.jsp 파일을 생성하고 비밀번호 변경을 누를시에 mypage_change_pw.jsp로 가게하고
+ 나머지 회원정보수정 회원탈퇴하기에 링크된 주소대로 나중에 파일만들거니까 확인해둬라
+	-먼저 아래코드를 복사해서 넣어라
+	-mypage_user_update.jsp가 비밀번호변경,회원정보수정, 회원탈퇴하기 3개의 버튼을 클릭했을때 해당 파일로 넘겨주는 역할을함과 동시에
+		회원정보수정의 코드까지 가지고 있다.
+		왜 이렇게 만들었을까? 나누는게 나을듯하다
+			-아니다 확인해보니까 변경,수정,탈퇴 페이지 모두에서 서로를 클릭했을때 이동하는 링크를 담고있다.
+
+2)회원정보수정을 클릭했을때 이름(아이디)님의 정보를수정합니다에서. 이름과 아이디엔 현재 로그인된 사용자의 정보가 들어가게하라
+3)새로운 이름을 입력해주세요와 새로운 이메일을 입력해주세요에는 이전 이름과 이메일이 들어가있도록 해라
+
+
+<%@page import="kr.co.koo.izone.member.model.MemberVO"%>
+<%@page import="kr.co.koo.izone.member.model.MemberDAO"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+	pageEncoding="UTF-8"%>
+<%
+	String userName = (String)session.getAttribute("user_name");
+	if(userName == null) response.sendRedirect("/izone");	
+
+	String id = (String)session.getAttribute("user_id");
+
+	MemberDAO dao = MemberDAO.getInstance();
+	MemberVO member = dao.getMemberInfo(id);	
+%>
+
+<%@ include file="../include/header.jspf"%>
+<style>
+header.masthead {
+	display: none;
+}
+</style>
+
+<br />
+<br />
+<div class="row">
+	<div class="col-md-3"></div>
+
+	<div class="col-md-6">
+
+		<ul class="nav nav-tabs nav-justified">
+			<li class="nav-item"><a class="nav-link"
+				href="#" style="font-size: 20px;"><strong>비밀번호
+						변경</strong></a></li>
+			<li class="nav-item"><a class="nav-link active"
+				href="/izone/users/mypage_user_update.jsp" style="font-size: 20px;"><strong>회원정보
+						수정</strong></a></li>
+			<li class="nav-item"><a class="nav-link"
+				href="/izone/users/mypage_delete_check.jsp" style="font-size: 20px;"><strong>회원
+						탈퇴하기</strong></a></li>
+
+		</ul>
+		<br />
+		<br />
+
+		<h4 style="color: #ff52a0;">회원정보 수정 페이지</h4>
+		<hr />
+		<br />
+		<form action="/izone/users/user_update_ok.jsp" name="signup" id="signUpForm"
+			method="post" style="margin-bottom: 0;">
+
+	<table style="cellpadding: 0; cellspacing: 0; margin: 0 auto; width: 100%">
+		<tr>
+			<td style="padding-top: 10px; text-align: center">
+				<p>
+					<strong> 이름(아이디)님의 정보를 수정합니다.</strong>
+				</p>
+			</td>
+		</tr>
+
+
+		<tr>
+			<td style="text-align: left">
+				<p>
+					<strong>새로운 이름을 입력해주세요.</strong>&nbsp;&nbsp;&nbsp;<span id="nameChk"></span>
+				</p>
+			</td>
+		</tr>
+		<tr>
+			<td><input type="text" name="userName" id="user_name"
+				class="form-control tooltipstered" maxlength="6" required="required"
+				aria-required="true" value="#" 
+				style="margin-bottom: 25px; width: 100%; height: 40px; border: 1px solid #d9d9de"
+				placeholder="한글로 최대 6자"></td> <!--  기존의 이름이 적혀있어야함 -->
+		</tr>
+
+		<tr>
+			<td style="text-align: left">
+				<p>
+					<strong>새로운 이메일을 입력해주세요.</strong>&nbsp;&nbsp;&nbsp;<span id="emailChk"></span>
+				</p>
+			</td>
+		</tr>
+		<tr>
+			<td><input type="email" name="userEmail" id="user_email"
+				class="form-control tooltipstered" required="required"
+				aria-required="true" value="#"
+				style="margin-bottom: 25px; width: 100%; height: 40px; border: 1px solid #d9d9de"
+				placeholder="ex) izone@produce.com"></td><!--  기존의 이메일이 적혀있어야함 -->
+		</tr>
+
+
+		<tr>
+			<td style="width: 100%; text-align: center; colspan: 2;"><input
+				type="submit" value="정보 수정" class="btn form-control tooltipstered"
+				id="update-btn"
+				style="background-color: #ff52a0; margin-top: 0; height: 40px; color: white; border: 0px solid #388E3C; opacity: 0.8">
+			</td>
+		</tr>
+
+	</table>
+</form>
+		
+
+	</div>
+	<div class="col-md-3"></div>
+</div>
+
+<br />
+<br />
+
+
+
+
+<%@ include file="../include/footer.jspf"%>
+######################################################################################################
+
+
+
+
+
+
+답:
+
+
+
+
+<%@page import="kr.co.koo.izone.member.model.MemberVO"%>
+<%@page import="kr.co.koo.izone.member.model.MemberDAO"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+	pageEncoding="UTF-8"%>
+<%
+	String id = (String)session.getAttribute("user_id");
+	if(id == null) response.sendRedirect("/izone");
+	String name = (String)session.getAttribute("user_name");
+	
+	MemberDAO dao = MemberDAO.getInstance();
+	MemberVO member = dao.getMemberInfo(id);
+%>
+
+<%@ include file="../include/header.jspf"%>
+<style>
+header.masthead {
+	display: none;
+}
+</style>
+
+<br />
+<br />
+<div class="row">
+	<div class="col-md-3"></div>
+
+	<div class="col-md-6">
+
+		<ul class="nav nav-tabs nav-justified">
+			<li class="nav-item"><a class="nav-link"
+				href="/izone/users/mypage_change_pw.jsp" style="font-size: 20px;"><strong>비밀번호
+						변경</strong></a></li>
+			<li class="nav-item"><a class="nav-link active"
+				href="/izone/users/mypage_user_update.jsp" style="font-size: 20px;"><strong>회원정보
+						수정</strong></a></li>
+			<li class="nav-item"><a class="nav-link"
+				href="/izone/users/mypage_delete_check.jsp" style="font-size: 20px;"><strong>회원
+						탈퇴하기</strong></a></li>
+
+		</ul>
+		<br />
+		<br />
+
+		<h4 style="color: #ff52a0;">회원정보 수정 페이지</h4>
+		<hr />
+		<br />
+		<form action="/izone/users/user_update_ok.jsp" name="signup" id="signUpForm"
+			method="post" style="margin-bottom: 0;">
+
+	<table style="cellpadding: 0; cellspacing: 0; margin: 0 auto; width: 100%">
+		<tr>
+			<td style="padding-top: 10px; text-align: center">
+				<p>
+					<strong> <%= name %>(<%= id %>)님의 정보를 수정합니다.</strong>
+				</p>
+			</td>
+		</tr>
+
+
+		<tr>
+			<td style="text-align: left">
+				<p>
+					<strong>새로운 이름을 입력해주세요.</strong>&nbsp;&nbsp;&nbsp;<span id="nameChk"></span>
+				</p>
+			</td>
+		</tr>
+		<tr>
+			<td><input type="text" name="userName" id="user_name"
+				class="form-control tooltipstered" maxlength="6" required="required"
+				aria-required="true" value="<%= name %>" 
+				style="margin-bottom: 25px; width: 100%; height: 40px; border: 1px solid #d9d9de"
+				placeholder="한글로 최대 6자"></td> <!--  기존의 이름이 적혀있어야함 -->
+		</tr>
+
+		<tr>
+			<td style="text-align: left">
+				<p>
+					<strong>새로운 이메일을 입력해주세요.</strong>&nbsp;&nbsp;&nbsp;<span id="emailChk"></span>
+				</p>
+			</td>
+		</tr>
+		<tr>
+			<td><input type="email" name="userEmail" id="user_email"
+				class="form-control tooltipstered" required="required"
+				aria-required="true" value="<%= member.getUserEmail() %>"
+				style="margin-bottom: 25px; width: 100%; height: 40px; border: 1px solid #d9d9de"
+				placeholder="ex) izone@produce.com"></td><!--  기존의 이메일이 적혀있어야함 -->
+		</tr>
+
+
+		<tr>
+			<td style="width: 100%; text-align: center; colspan: 2;"><input
+				type="submit" value="정보 수정" class="btn form-control tooltipstered"
+				id="update-btn"
+				style="background-color: #ff52a0; margin-top: 0; height: 40px; color: white; border: 0px solid #388E3C; opacity: 0.8">
+			</td>
+		</tr>
+
+	</table>
+</form>
+		
+
+	</div>
+	<div class="col-md-3"></div>
+</div>
+
+<br />
+<br />
+
+
+
+
+<%@ include file="../include/footer.jspf"%>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+######################################################################################################
+예제68)회원정보수정 기능
+
+1)위문제에서 만든 mypage_user_update.jsp를 이용하여 회원정보 수정기능이 실제 db와 연동되어 이루어지도록 만들어라
+
+	//요청 파라미터 값 처리 후 DB연동을 통해 정보 수정 처리 완료.
+	//수정 성공시 알림창으로 "회원정보가 정상적으로 수정되었습니다."
+	//출력 후 홈으로 안내 , 실패 시에는 "회원정보 수정에 실패했습니다"
+	//출력 후 홈으로 안내.
+	//세션 관련 처리를 잘 생각해 볼것. 
+	//DAO메서드 이름은 updateMember로 지정.
+
+######################################################################################################
+
+
+답:
+
+
+//MemberDAO.java
+package kr.co.koo.izone.member.model;
+
+import java.sql.*;
+import java.util.*;
+import javax.sql.DataSource;
+
+import kr.co.koo.izone.util.JdbcUtil;
+
+import javax.naming.*;
+
+public class MemberDAO {
+	private static MemberDAO dao = new MemberDAO();
+	private DataSource ds;
+	
+	private Connection conn = null;
+	private PreparedStatement pstmt = null;
+	private ResultSet rs = null;
+	
+	public static final int LOGIN_FAIL_ID = 0;
+	public static final int LOGIN_FAIL_PW = -1;
+	public static final int LOGIN_SUCCESS = 1;
+	
+	
+	public MemberDAO() {
+		try {
+			Context ct = new InitialContext();
+			ds = (DataSource)ct.lookup("java:comp/env/jdbc/mysql");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public static MemberDAO getInstance() {
+		if(dao==null) {
+			dao = new MemberDAO();
+		}
+		return dao;
+	}
+	
+	//ID 중복확인을 하는 메서드 선언
+	public boolean confirmId(String id) {
+		String sql = "SELECT user_id FROM izone_member "
+				+"WHERE user_id = ?";
+		boolean flag = false;
+		
+		try {
+			conn = ds.getConnection();
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setString(1, id);
+			
+			rs = pstmt.executeQuery();
+			
+			if(rs.next()) {
+				flag = true;	//아이디가 중복됨을 의미
+			} else {
+				flag = false;
+			}
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			JdbcUtil.close(conn);
+			JdbcUtil.close(pstmt);
+			//JdbcUtil.close(rs);
+		}
+		
+		return flag;
+	}
+	
+	public int insertMember(MemberVO member) {
+		String sql = "INSERT INTO jsp_practice.izone_member"
+				+ " (user_id, user_pw, user_name, user_email)"
+				+ " VALUES(?, ?, ?, ?)";
+		
+		int rn = 0;
+		try {
+			conn = ds.getConnection();
+			pstmt = conn.prepareStatement(sql);
+			
+			pstmt.setString(1, member.getUserId());
+			pstmt.setString(2, member.getUserPw());
+			pstmt.setString(3, member.getUserName());
+			pstmt.setString(4, member.getUserEmail());
+			
+			
+			rn = pstmt.executeUpdate();
+			
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			JdbcUtil.close(conn);
+			JdbcUtil.close(pstmt);
+		}
+		
+		return rn;
+	}
+	
+	
+	public int userCheck(String id, String pw) {
+		String sql = "SELECT user_pw FROM jsp_practice.izone_member WHERE user_id = ?";
+		int rn = LOGIN_FAIL_ID;
+		try {
+			conn = ds.getConnection();
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setString(1, id);
+			
+			
+			
+			rs = pstmt.executeQuery();
+			if(rs.next()) {
+				if(pw.equals(rs.getString("user_pw"))) {
+					rn = LOGIN_SUCCESS;
+				}else {					
+					rn = LOGIN_FAIL_PW;
+				}
+			}
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {			
+			JdbcUtil.close(conn);
+			JdbcUtil.close(pstmt);
+			JdbcUtil.close(rs);
+		}
+		return rn;
+	}
+	
+	public MemberVO getMemberInfo(String id) {
+		String sql = "SELECT * FROM jsp_practice.izone_member WHERE user_id = ?";
+		MemberVO member = new MemberVO();
+		try {
+			conn = ds.getConnection();
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setString(1, id);
+			
+			rs = pstmt.executeQuery();
+			if(rs.next()) {
+				member.setUserId(rs.getString("user_id"));
+				member.setUserPw(rs.getString("user_pw"));
+				member.setUserName(rs.getString("user_name"));
+				member.setUserEmail(rs.getString("user_email"));
+			}
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {			
+			JdbcUtil.close(conn);
+			JdbcUtil.close(pstmt);
+			JdbcUtil.close(rs);
+		}
+		
+		return member;
+	}
+	
+	
+	public int changePassword(String id, String pw) {
+		String sql = "UPDATE jsp_practice.izone_member set user_pw = ? WHERE user_id = ?";
+		
+		int rn = 0;
+		
+		try {
+			conn = ds.getConnection();
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setString(1, pw);
+			pstmt.setString(2, id);
+			
+			rn = pstmt.executeUpdate();
+			
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {			
+			JdbcUtil.close(conn);
+			JdbcUtil.close(pstmt);
+		}
+		
+		return rn;
+	}
+	
+	
+	public int updateMember(MemberVO member) {
+		String sql = "UPDATE izone_member SET user_name = ?, user_email = ? WHERE"
+				+ " user_id = ?";
+		int rn = 0;
+		try {
+			conn = ds.getConnection();
+			pstmt = conn.prepareStatement(sql);
+			
+			pstmt.setString(1, member.getUserName());
+			pstmt.setString(2, member.getUserEmail());
+			pstmt.setString(3, member.getUserId());
+			
+			rn = pstmt.executeUpdate();
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			JdbcUtil.close(conn);
+			JdbcUtil.close(pstmt);
+		}
+		
+		return rn;
+	}
+}
+
+
+
+//user_update_ok.jsp
+<%@page import="kr.co.koo.izone.member.model.MemberVO"%>
+<%@page import="kr.co.koo.izone.member.model.MemberDAO"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+
+<%
+request.setCharacterEncoding("utf-8");
+
+	String id = (String)session.getAttribute("user_id");
+	String name = request.getParameter("userName");
+	String email = request.getParameter("userEmail");
+	
+	MemberVO member = new MemberVO();
+	member.setUserId(id);
+	member.setUserName(name);
+	member.setUserEmail(email);	
+	
+	MemberDAO dao = MemberDAO.getInstance();
+	int rn = dao.updateMember(member);
+	
+	if(rn == 1){
+		session.setAttribute("user_name", member.getUserName());
+	%>
+		<script>
+			alert("회원정보가 정상적으로 수정되었습니다.");
+			location.href = "/izone";
+		</script>
+	<%} else{ %>
+		<script>
+			alert('회원정보 수정에 실패했습니다.');
+			location.href = "/izone";
+		</script>
+	<%}
+%>
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+######################################################################################################
+예제69)회원탈퇴
+
+1)mypage_change_pw.jsp에서 탈퇴버튼을 눌렀을시에 /izone/users/mypage_delete_check.jsp로 가게하라
+	mypage_user_update.jsp에서 탈퇴버튼눌렀을시에는 이미 절로 가게 입력되어있다.
+	-mypage_delete_check.jsp 만든 후 아래에 코드 복사 후 마이페이지에서 회원탈퇴하기 클릭하면 ui 나오는것 확인
+
+2)mypage_delete_check.jsp에서 비번입력후 확인클릭시 가는 곳 확인을위해 form을 보면 user_delete.jsp가 있다.
+  user_delete.jsp의 역할은 비번이 맞는지 검증하는 역할이다. 해당 파일을 만들고 코드를 작성하라
+
+
+3)user_delete.jsp에서 비번검증후 비번이 맞으면 이름(id)님 정말로 회원정보를 삭제하시겠습니까? 예 아니오 창을 볼수있게하고
+	비번이 틀리면 못보게해라. 그래서 예를 누르면 user_delete_ok.jsp에서 리얼루다가 탈퇴시키는거고  아니오누르면 mypage_delete_check.jsp로 이동
+	-DAO의 삭제메서드를 이용하여 db의 내용까지 지워버려야한다
+	-user_delete.jsp의 form태그를 보면 user_delete_ok.jsp를 가르키는데 해당 피일의 기능은 실제로 회원을 탈퇴시키는 것이다.
+
+	-예아니오 창을보려면 else아래의 script를 주석달고 하면된다. 보고나면 다시 풀어라 그래야 정상작동하지
+
+
+
+
+
+
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<%
+	request.setCharacterEncoding("utf-8");
+
+	String id = (String)session.getAttribute("user_id");
+	String name = (String)session.getAttribute("user_name");
+
+	
+	//비밀번호 맞는지 검사하는 기능 작성
+
+%>
+<%@ include file="../include/header.jspf" %>
+<style>
+header.masthead {
+	
+	display: none;
+}	
+</style>
+
+<br/><br/>
+<div class="row">
+<div class="col-md-3"></div>
+
+<div class="col-md-6">
+
+<ul class="nav nav-tabs nav-justified">
+   <li class="nav-item" ><a class="nav-link" href="/izone/users/mypage_change_pw.jsp" style="font-size: 20px;"><strong>비밀번호 변경</strong></a></li>
+   <li class="nav-item"><a class="nav-link" href="/izone/users/mypage_user_update.jsp" style="font-size: 20px;"><strong>회원정보 수정</strong></a></li>
+   <li class="nav-item"><a class="nav-link active" href="/izone/users/mypage_delete_check.jsp" style="font-size: 20px;"><strong>회원 탈퇴하기</strong></a></li>
+   
+</ul>
+<br/><br/>
+
+<h4 style="color: #ff52a0;">회원 탈퇴 페이지</h4><hr/><br/>
+
+<div align="center">
+<form action = "/izone/users/user_delete_ok.jsp" method = "post" style = "margin-bottom: 0;">
+	
+	<%-- if(??) { --%>
+		<h4><%= name %>(<%= id %>)님 정말로 회원정보를 삭제하시겠습니까?</h4>
+		
+		<a class="btn" href="/izone/users/user_delete_ok.jsp"
+		style="background-color: #ff52a0; margin-top: 0; height: 40px; color: white; border: 0px solid #388E3C; opacity: 0.8">예</a>&nbsp;&nbsp;
+		<a class="btn btn-danger" href="/izone/users/mypage_delete_check.jsp"
+		style="margin-top: 0; height: 40px; color: white; border: 0px solid #388E3C; opacity: 0.8">아니오</a>
+	
+	<%-- } else { --%>
+		<!--  <script>
+			alert("비밀번호를 다시 확인해주세요.")
+			history.back()
+		</script>-->
+	<%-- } --%>
+</form>
+</div>
+</div>
+<div class="col-md-3"></div>
+</div>
+
+<br/><br/>
+
+
+<%@ include file="../include/footer.jspf" %>
+######################################################################################################
+
+
+
+
+
+
+
+
+
+답:
